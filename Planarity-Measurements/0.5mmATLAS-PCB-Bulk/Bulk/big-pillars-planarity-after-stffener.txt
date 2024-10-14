@@ -1,0 +1,605 @@
+
+         Elément            Réel       Val. nom.           Ecart       Tol. sup.       Tol. inf.           OK/HT
+                                                        (Dév PR)        (Tol PR)                                
+Point-1(De 1 pt) 
+     Coord. X =           72,011                                                                                
+     Coord. Y =          102,560                                                                                
+     Coord. Z =           11,480                                                                                
+
+Point-2(De 1 pt) 
+     Coord. X =            0,004                                                                                
+     Coord. Y =           -0,004                                                                                
+     Coord. Z =            0,000                                                                                
+
+Point-3(De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           10,016                                                                                
+     Coord. Z =            0,009                                                                                
+
+Point-4(De 1 pt) 
+     Coord. X =            0,020                                                                                
+     Coord. Y =           20,036                                                                                
+     Coord. Z =            0,006                                                                                
+
+Point-5(De 1 pt) 
+     Coord. X =            0,020                                                                                
+     Coord. Y =           30,041                                                                                
+     Coord. Z =            0,004                                                                                
+
+Point-6(De 1 pt) 
+     Coord. X =            0,014                                                                                
+     Coord. Y =           40,034                                                                                
+     Coord. Z =            0,003                                                                                
+
+Point-7(De 1 pt) 
+     Coord. X =            0,014                                                                                
+     Coord. Y =           50,046                                                                                
+     Coord. Z =            0,000                                                                                
+
+Point-8(De 1 pt) 
+     Coord. X =            0,031                                                                                
+     Coord. Y =           60,046                                                                                
+     Coord. Z =           -0,006                                                                                
+
+Point-9(De 1 pt) 
+     Coord. X =            0,044                                                                                
+     Coord. Y =           70,070                                                                                
+     Coord. Z =           -0,013                                                                                
+
+Point-10(De 1 pt) 
+     Coord. X =            0,049                                                                                
+     Coord. Y =           80,079                                                                                
+     Coord. Z =           -0,020                                                                                
+
+Point-11(De 1 pt) 
+     Coord. X =            9,976                                                                                
+     Coord. Y =          -10,020                                                                                
+     Coord. Z =            0,011                                                                                
+
+Point-12(De 1 pt) 
+     Coord. X =           10,000                                                                                
+     Coord. Y =           -0,012                                                                                
+     Coord. Z =            0,013                                                                                
+
+Point-13(De 1 pt) 
+     Coord. X =           10,004                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,011                                                                                
+
+Point-14(De 1 pt) 
+     Coord. X =           10,002                                                                                
+     Coord. Y =           20,007                                                                                
+     Coord. Z =            0,008                                                                                
+
+Point-15(De 1 pt) 
+     Coord. X =           10,032                                                                                
+     Coord. Y =           30,015                                                                                
+     Coord. Z =            0,007                                                                                
+
+Point-16(De 1 pt) 
+     Coord. X =           10,028                                                                                
+     Coord. Y =           40,029                                                                                
+     Coord. Z =            0,006                                                                                
+
+Point-17(De 1 pt) 
+     Coord. X =           10,038                                                                                
+     Coord. Y =           50,037                                                                                
+     Coord. Z =            0,003                                                                                
+
+Point-18(De 1 pt) 
+     Coord. X =           10,032                                                                                
+     Coord. Y =           60,040                                                                                
+     Coord. Z =           -0,001                                                                                
+
+Point-19(De 1 pt) 
+     Coord. X =           10,064                                                                                
+     Coord. Y =           70,060                                                                                
+     Coord. Z =           -0,008                                                                                
+
+Point-20(De 1 pt) 
+     Coord. X =           10,075                                                                                
+     Coord. Y =           80,065                                                                                
+     Coord. Z =           -0,013                                                                                
+
+Point-21(De 1 pt) 
+     Coord. X =           10,074                                                                                
+     Coord. Y =           90,077                                                                                
+     Coord. Z =           -0,020                                                                                
+
+Point-22(De 1 pt) 
+     Coord. X =           20,004                                                                                
+     Coord. Y =          -10,034                                                                                
+     Coord. Z =            0,017                                                                                
+
+Point-23(De 1 pt) 
+     Coord. X =           20,010                                                                                
+     Coord. Y =           -0,020                                                                                
+     Coord. Z =            0,014                                                                                
+
+Point-24(De 1 pt) 
+     Coord. X =           20,010                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,011                                                                                
+
+Point-25(De 1 pt) 
+     Coord. X =           20,025                                                                                
+     Coord. Y =           20,009                                                                                
+     Coord. Z =            0,008                                                                                
+
+Point-26(De 1 pt) 
+     Coord. X =           20,029                                                                                
+     Coord. Y =           30,010                                                                                
+     Coord. Z =            0,008                                                                                
+
+Point-27(De 1 pt) 
+     Coord. X =           20,040                                                                                
+     Coord. Y =           40,022                                                                                
+     Coord. Z =            0,009                                                                                
+
+Point-28(De 1 pt) 
+     Coord. X =           20,056                                                                                
+     Coord. Y =           50,041                                                                                
+     Coord. Z =            0,008                                                                                
+
+Point-30(De 1 pt) 
+     Coord. X =           20,039                                                                                
+     Coord. Y =           60,023                                                                                
+     Coord. Z =            0,002                                                                                
+
+Point-31(De 1 pt) 
+     Coord. X =           20,050                                                                                
+     Coord. Y =           70,047                                                                                
+     Coord. Z =           -0,005                                                                                
+
+Point-32(De 1 pt) 
+     Coord. X =           20,074                                                                                
+     Coord. Y =           80,065                                                                                
+     Coord. Z =           -0,011                                                                                
+
+Point-33(De 1 pt) 
+     Coord. X =           20,077                                                                                
+     Coord. Y =           90,074                                                                                
+     Coord. Z =           -0,019                                                                                
+
+Point-34(De 1 pt) 
+     Coord. X =           30,022                                                                                
+     Coord. Y =          -10,028                                                                                
+     Coord. Z =            0,015                                                                                
+
+Point-35(De 1 pt) 
+     Coord. X =           30,028                                                                                
+     Coord. Y =           -0,012                                                                                
+     Coord. Z =            0,013                                                                                
+
+Point-36(De 1 pt) 
+     Coord. X =           30,025                                                                                
+     Coord. Y =            9,986                                                                                
+     Coord. Z =            0,007                                                                                
+
+Point-37(De 1 pt) 
+     Coord. X =           30,033                                                                                
+     Coord. Y =           20,003                                                                                
+     Coord. Z =            0,008                                                                                
+
+Point-38(De 1 pt) 
+     Coord. X =           30,033                                                                                
+     Coord. Y =           29,993                                                                                
+     Coord. Z =            0,009                                                                                
+
+Point-39(De 1 pt) 
+     Coord. X =           30,051                                                                                
+     Coord. Y =           40,019                                                                                
+     Coord. Z =            0,010                                                                                
+
+Point-40(De 1 pt) 
+     Coord. X =           30,049                                                                                
+     Coord. Y =           50,039                                                                                
+     Coord. Z =            0,007                                                                                
+
+Point-41(De 1 pt) 
+     Coord. X =           30,065                                                                                
+     Coord. Y =           60,035                                                                                
+     Coord. Z =            0,001                                                                                
+
+Point-42(De 1 pt) 
+     Coord. X =           30,067                                                                                
+     Coord. Y =           70,040                                                                                
+     Coord. Z =           -0,002                                                                                
+
+Point-43(De 1 pt) 
+     Coord. X =           30,065                                                                                
+     Coord. Y =           80,046                                                                                
+     Coord. Z =           -0,009                                                                                
+
+Point-44(De 1 pt) 
+     Coord. X =           30,075                                                                                
+     Coord. Y =           90,066                                                                                
+     Coord. Z =           -0,019                                                                                
+
+Point-46(De 1 pt) 
+     Coord. X =           40,016                                                                                
+     Coord. Y =           -0,037                                                                                
+     Coord. Z =            0,016                                                                                
+
+Point-47(De 1 pt) 
+     Coord. X =           40,017                                                                                
+     Coord. Y =            9,981                                                                                
+     Coord. Z =            0,013                                                                                
+
+Point-48(De 1 pt) 
+     Coord. X =           40,044                                                                                
+     Coord. Y =           19,984                                                                                
+     Coord. Z =            0,012                                                                                
+
+Point-49(De 1 pt) 
+     Coord. X =           40,045                                                                                
+     Coord. Y =           29,989                                                                                
+     Coord. Z =            0,012                                                                                
+
+Point-50(De 1 pt) 
+     Coord. X =           40,052                                                                                
+     Coord. Y =           40,010                                                                                
+     Coord. Z =            0,012                                                                                
+
+Point-51(De 1 pt) 
+     Coord. X =           40,079                                                                                
+     Coord. Y =           50,022                                                                                
+     Coord. Z =            0,007                                                                                
+
+Point-52(De 1 pt) 
+     Coord. X =           40,077                                                                                
+     Coord. Y =           60,016                                                                                
+     Coord. Z =            0,003                                                                                
+
+Point-53(De 1 pt) 
+     Coord. X =           40,072                                                                                
+     Coord. Y =           70,035                                                                                
+     Coord. Z =            0,001                                                                                
+
+Point-54(De 1 pt) 
+     Coord. X =           40,069                                                                                
+     Coord. Y =           80,048                                                                                
+     Coord. Z =           -0,006                                                                                
+
+Point-55(De 1 pt) 
+     Coord. X =           40,088                                                                                
+     Coord. Y =           90,058                                                                                
+     Coord. Z =           -0,013                                                                                
+
+Point-56(De 1 pt) 
+     Coord. X =           40,026                                                                                
+     Coord. Y =          -10,024                                                                                
+     Coord. Z =            0,016                                                                                
+
+Point-58(De 1 pt) 
+     Coord. X =           50,019                                                                                
+     Coord. Y =          -10,046                                                                                
+     Coord. Z =            0,013                                                                                
+
+Point-59(De 1 pt) 
+     Coord. X =           50,038                                                                                
+     Coord. Y =           -0,026                                                                                
+     Coord. Z =            0,014                                                                                
+
+Point-60(De 1 pt) 
+     Coord. X =           50,040                                                                                
+     Coord. Y =            9,974                                                                                
+     Coord. Z =            0,011                                                                                
+
+Point-61(De 1 pt) 
+     Coord. X =           50,049                                                                                
+     Coord. Y =           19,982                                                                                
+     Coord. Z =            0,014                                                                                
+
+Point-62(De 1 pt) 
+     Coord. X =           50,051                                                                                
+     Coord. Y =           29,986                                                                                
+     Coord. Z =            0,015                                                                                
+
+Point-63(De 1 pt) 
+     Coord. X =           50,051                                                                                
+     Coord. Y =           39,990                                                                                
+     Coord. Z =            0,015                                                                                
+
+Point-64(De 1 pt) 
+     Coord. X =           50,072                                                                                
+     Coord. Y =           50,009                                                                                
+     Coord. Z =            0,010                                                                                
+
+Point-65(De 1 pt) 
+     Coord. X =           50,074                                                                                
+     Coord. Y =           60,017                                                                                
+     Coord. Z =            0,007                                                                                
+
+Point-66(De 1 pt) 
+     Coord. X =           50,093                                                                                
+     Coord. Y =           70,034                                                                                
+     Coord. Z =            0,002                                                                                
+
+Point-67(De 1 pt) 
+     Coord. X =           50,095                                                                                
+     Coord. Y =           80,047                                                                                
+     Coord. Z =           -0,004                                                                                
+
+Point-68(De 1 pt) 
+     Coord. X =           50,106                                                                                
+     Coord. Y =           90,046                                                                                
+     Coord. Z =           -0,010                                                                                
+
+Point-69(De 1 pt) 
+     Coord. X =           60,039                                                                                
+     Coord. Y =          -10,059                                                                                
+     Coord. Z =            0,008                                                                                
+
+Point-70(De 1 pt) 
+     Coord. X =           60,039                                                                                
+     Coord. Y =           -0,050                                                                                
+     Coord. Z =            0,013                                                                                
+
+Point-71(De 1 pt) 
+     Coord. X =           60,037                                                                                
+     Coord. Y =            9,953                                                                                
+     Coord. Z =            0,011                                                                                
+
+Point-72(De 1 pt) 
+     Coord. X =           60,039                                                                                
+     Coord. Y =           19,971                                                                                
+     Coord. Z =            0,015                                                                                
+
+Point-73(De 1 pt) 
+     Coord. X =           60,059                                                                                
+     Coord. Y =           29,977                                                                                
+     Coord. Z =            0,019                                                                                
+
+Point-74(De 1 pt) 
+     Coord. X =           60,065                                                                                
+     Coord. Y =           39,993                                                                                
+     Coord. Z =            0,019                                                                                
+
+Point-75(De 1 pt) 
+     Coord. X =           60,065                                                                                
+     Coord. Y =           50,007                                                                                
+     Coord. Z =            0,015                                                                                
+
+Point-76(De 1 pt) 
+     Coord. X =           60,071                                                                                
+     Coord. Y =           60,018                                                                                
+     Coord. Z =            0,010                                                                                
+
+Point-77(De 1 pt) 
+     Coord. X =           60,077                                                                                
+     Coord. Y =           70,013                                                                                
+     Coord. Z =            0,004                                                                                
+
+Point-78(De 1 pt) 
+     Coord. X =           60,098                                                                                
+     Coord. Y =           90,045                                                                                
+     Coord. Z =           -0,005                                                                                
+
+Point-79(De 1 pt) 
+     Coord. X =           60,111                                                                                
+     Coord. Y =           80,052                                                                                
+     Coord. Z =           -0,001                                                                                
+
+Point-80(De 1 pt) 
+     Coord. X =           70,054                                                                                
+     Coord. Y =          -10,059                                                                                
+     Coord. Z =            0,015                                                                                
+
+Point-81(De 1 pt) 
+     Coord. X =           70,056                                                                                
+     Coord. Y =           -0,047                                                                                
+     Coord. Z =            0,017                                                                                
+
+Point-82(De 1 pt) 
+     Coord. X =           70,054                                                                                
+     Coord. Y =            9,952                                                                                
+     Coord. Z =            0,015                                                                                
+
+Point-83(De 1 pt) 
+     Coord. X =           70,078                                                                                
+     Coord. Y =           19,975                                                                                
+     Coord. Z =            0,019                                                                                
+
+Point-84(De 1 pt) 
+     Coord. X =           70,078                                                                                
+     Coord. Y =           29,985                                                                                
+     Coord. Z =            0,023                                                                                
+
+Point-85(De 1 pt) 
+     Coord. X =           70,082                                                                                
+     Coord. Y =           39,983                                                                                
+     Coord. Z =            0,023                                                                                
+
+Point-86(De 1 pt) 
+     Coord. X =           70,078                                                                                
+     Coord. Y =           49,982                                                                                
+     Coord. Z =            0,019                                                                                
+
+Point-87(De 1 pt) 
+     Coord. X =           70,092                                                                                
+     Coord. Y =           60,002                                                                                
+     Coord. Z =            0,013                                                                                
+
+Point-88(De 1 pt) 
+     Coord. X =           70,097                                                                                
+     Coord. Y =           70,016                                                                                
+     Coord. Z =            0,007                                                                                
+
+Point-89(De 1 pt) 
+     Coord. X =           70,117                                                                                
+     Coord. Y =           80,030                                                                                
+     Coord. Z =            0,002                                                                                
+
+Point-90(De 1 pt) 
+     Coord. X =           70,125                                                                                
+     Coord. Y =           90,035                                                                                
+     Coord. Z =           -0,003                                                                                
+
+Point-91(De 1 pt) 
+     Coord. X =           80,071                                                                                
+     Coord. Y =          -10,054                                                                                
+     Coord. Z =            0,022                                                                                
+
+Point-92(De 1 pt) 
+     Coord. X =           80,061                                                                                
+     Coord. Y =           -0,059                                                                                
+     Coord. Z =            0,030                                                                                
+
+Point-93(De 1 pt) 
+     Coord. X =           80,067                                                                                
+     Coord. Y =            9,945                                                                                
+     Coord. Z =            0,026                                                                                
+
+Point-94(De 1 pt) 
+     Coord. X =           80,067                                                                                
+     Coord. Y =           19,961                                                                                
+     Coord. Z =            0,029                                                                                
+
+Point-95(De 1 pt) 
+     Coord. X =           80,082                                                                                
+     Coord. Y =           29,964                                                                                
+     Coord. Z =            0,031                                                                                
+
+Point-96(De 1 pt) 
+     Coord. X =           80,104                                                                                
+     Coord. Y =           39,991                                                                                
+     Coord. Z =            0,029                                                                                
+
+Point-97(De 1 pt) 
+     Coord. X =           80,104                                                                                
+     Coord. Y =           49,994                                                                                
+     Coord. Z =            0,022                                                                                
+
+Point-98(De 1 pt) 
+     Coord. X =           80,107                                                                                
+     Coord. Y =           59,993                                                                                
+     Coord. Z =            0,014                                                                                
+
+Point-99(De 1 pt) 
+     Coord. X =           80,121                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,006                                                                                
+
+Point-100(De 1 pt) 
+     Coord. X =           80,125                                                                                
+     Coord. Y =           80,024                                                                                
+     Coord. Z =            0,004                                                                                
+
+Point-101(De 1 pt) 
+     Coord. X =           80,131                                                                                
+     Coord. Y =           90,024                                                                                
+     Coord. Z =            0,002                                                                                
+
+Point-102(De 1 pt) 
+     Coord. X =           90,071                                                                                
+     Coord. Y =          -10,063                                                                                
+     Coord. Z =            0,022                                                                                
+
+Point-103(De 1 pt) 
+     Coord. X =           90,058                                                                                
+     Coord. Y =           -0,066                                                                                
+     Coord. Z =            0,031                                                                                
+
+Point-104(De 1 pt) 
+     Coord. X =           90,077                                                                                
+     Coord. Y =            9,947                                                                                
+     Coord. Z =            0,035                                                                                
+
+Point-105(De 1 pt) 
+     Coord. X =           90,082                                                                                
+     Coord. Y =           19,962                                                                                
+     Coord. Z =            0,041                                                                                
+
+Point-106(De 1 pt) 
+     Coord. X =           90,080                                                                                
+     Coord. Y =           29,946                                                                                
+     Coord. Z =            0,039                                                                                
+
+Point-107(De 1 pt) 
+     Coord. X =           90,100                                                                                
+     Coord. Y =           39,982                                                                                
+     Coord. Z =            0,035                                                                                
+
+Point-108(De 1 pt) 
+     Coord. X =           90,098                                                                                
+     Coord. Y =           49,986                                                                                
+     Coord. Z =            0,025                                                                                
+
+Point-109(De 1 pt) 
+     Coord. X =           90,106                                                                                
+     Coord. Y =           59,990                                                                                
+     Coord. Z =            0,016                                                                                
+
+Point-110(De 1 pt) 
+     Coord. X =           90,121                                                                                
+     Coord. Y =           70,002                                                                                
+     Coord. Z =            0,011                                                                                
+
+Point-111(De 1 pt) 
+     Coord. X =           90,123                                                                                
+     Coord. Y =           79,997                                                                                
+     Coord. Z =            0,009                                                                                
+
+Point-112(De 1 pt) 
+     Coord. X =           90,117                                                                                
+     Coord. Y =           90,028                                                                                
+     Coord. Z =            0,007                                                                                
+
+Point-113(De 1 pt) 
+     Coord. X =          100,070                                                                                
+     Coord. Y =           -0,087                                                                                
+     Coord. Z =            0,020                                                                                
+
+Point-114(De 1 pt) 
+     Coord. X =          100,083                                                                                
+     Coord. Y =            9,935                                                                                
+     Coord. Z =            0,026                                                                                
+
+Point-115(De 1 pt) 
+     Coord. X =          100,091                                                                                
+     Coord. Y =           19,947                                                                                
+     Coord. Z =            0,028                                                                                
+
+Point-116(De 1 pt) 
+     Coord. X =          100,095                                                                                
+     Coord. Y =           29,940                                                                                
+     Coord. Z =            0,026                                                                                
+
+Point-117(De 1 pt) 
+     Coord. X =          100,103                                                                                
+     Coord. Y =           39,955                                                                                
+     Coord. Z =            0,024                                                                                
+
+Point-118(De 1 pt) 
+     Coord. X =          100,115                                                                                
+     Coord. Y =           49,973                                                                                
+     Coord. Z =            0,019                                                                                
+
+Point-119(De 1 pt) 
+     Coord. X =          100,135                                                                                
+     Coord. Y =           59,992                                                                                
+     Coord. Z =            0,009                                                                                
+
+Point-120(De 1 pt) 
+     Coord. X =          100,141                                                                                
+     Coord. Y =           69,991                                                                                
+     Coord. Z =            0,005                                                                                
+
+Point-121(De 1 pt) 
+     Coord. X =          100,145                                                                                
+     Coord. Y =           80,010                                                                                
+     Coord. Z =            0,009                                                                                
+
+Plan-1(De 118 pt) 
+     Coord. X =           49,639                                                                                
+     Coord. Y =           39,662                                                                                
+     Coord. Z =            0,010                                                                                
+   Angle (XY) =          134,837                                                                                
+      Angle X =           90,014                                                                                
+      Angle Y =           89,986                                                                                
+      Angle Z =            0,020                                                                                
+     Planéité =                                            0,033                                                
+    Plan. min =                                            0,016                                                
+    Plan. max =                                            0,017                                                
+

@@ -1,0 +1,560 @@
+
+         Elément            Réel       Val. nom.           Ecart       Tol. sup.       Tol. inf.           OK/HT
+                                                        (Dév PR)        (Tol PR)                                
+O(De 1 pt) 
+     Coord. X =            6,108                                                                                
+     Coord. Y =           -0,189                                                                                
+     Coord. Z =           10,780                                                                                
+
+P[1,1](De 1 pt) 
+     Coord. X =            0,000                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,000                                                                                
+
+P[1,2](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,018                                                                                
+
+P[1,3](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =           -0,002                                                                                
+
+P[1,4](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,013                                                                                
+
+P[1,5](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,029                                                                                
+
+P[1,6](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,031                                                                                
+
+P[1,7](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,028                                                                                
+
+P[1,8](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,034                                                                                
+
+P[1,9](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,045                                                                                
+
+P[2,1](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =           -0,003                                                                                
+
+P[2,2](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,011                                                                                
+
+P[2,3](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =           -0,004                                                                                
+
+P[2,4](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,039                                                                                
+
+P[2,5](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,028                                                                                
+
+P[2,6](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,023                                                                                
+
+P[2,7](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,032                                                                                
+
+P[2,8](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,048                                                                                
+
+P[2,9](De 1 pt) 
+     Coord. X =           24,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,042                                                                                
+
+P[3,1](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =           -0,005                                                                                
+
+P[3,2](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,013                                                                                
+
+P[3,3](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,006                                                                                
+
+P[3,4](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,013                                                                                
+
+P[3,5](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,038                                                                                
+
+P[3,6](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,023                                                                                
+
+P[3,7](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,026                                                                                
+
+P[3,8](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,038                                                                                
+
+P[3,9](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,042                                                                                
+
+P[4,1](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,004                                                                                
+
+P[4,2](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,004                                                                                
+
+P[4,3](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,008                                                                                
+
+P[4,4](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,002                                                                                
+
+P[4,5](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,020                                                                                
+
+P[4,6](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,030                                                                                
+
+P[4,7](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,021                                                                                
+
+P[4,8](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,030                                                                                
+
+P[4,9](De 1 pt) 
+     Coord. X =           74,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,051                                                                                
+
+P[5,1](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,009                                                                                
+
+P[5,2](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,017                                                                                
+
+P[5,3](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,009                                                                                
+
+P[5,4](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,002                                                                                
+
+P[5,5](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,020                                                                                
+
+P[5,6](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,015                                                                                
+
+P[5,7](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,015                                                                                
+
+P[5,8](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,028                                                                                
+
+P[5,9](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,036                                                                                
+
+P[6,1](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,017                                                                                
+
+P[6,2](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,021                                                                                
+
+P[6,3](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,014                                                                                
+
+P[6,4](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,004                                                                                
+
+P[6,5](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,015                                                                                
+
+P[6,6](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,018                                                                                
+
+P[6,7](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,015                                                                                
+
+P[6,8](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,021                                                                                
+
+P[6,9](De 1 pt) 
+     Coord. X =          124,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,047                                                                                
+
+P[7,1](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,034                                                                                
+
+P[7,2](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,027                                                                                
+
+P[7,3](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,018                                                                                
+
+P[7,4](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =            0,002                                                                                
+
+P[7,5](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,007                                                                                
+
+P[7,6](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,006                                                                                
+
+P[7,7](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,013                                                                                
+
+P[7,8](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,024                                                                                
+
+P[7,9](De 1 pt) 
+     Coord. X =          149,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,034                                                                                
+
+P[8,1](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,035                                                                                
+
+P[8,2](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,024                                                                                
+
+P[8,3](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,007                                                                                
+
+P[8,4](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,008                                                                                
+
+P[8,5](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =            0,003                                                                                
+
+P[8,6](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =            0,000                                                                                
+
+P[8,7](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,019                                                                                
+
+P[8,8](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,041                                                                                
+
+P[8,9](De 1 pt) 
+     Coord. X =          174,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,045                                                                                
+
+P[9,1](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,032                                                                                
+
+P[9,2](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,041                                                                                
+
+P[9,3](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,017                                                                                
+
+P[9,4](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =            0,006                                                                                
+
+P[9,5](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =            0,004                                                                                
+
+P[9,6](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,002                                                                                
+
+P[9,7](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,011                                                                                
+
+P[9,8](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,021                                                                                
+
+P[9,9](De 1 pt) 
+     Coord. X =          199,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,044                                                                                
+
+P[10,1](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,035                                                                                
+
+P[10,2](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,044                                                                                
+
+P[10,3](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,014                                                                                
+
+P[10,4](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =           -0,020                                                                                
+
+P[10,5](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =            0,002                                                                                
+
+P[10,6](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,009                                                                                
+
+P[10,7](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,005                                                                                
+
+P[10,8](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,025                                                                                
+
+P[10,9](De 1 pt) 
+     Coord. X =          224,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,035                                                                                
+
+P[11,1](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,033                                                                                
+
+P[11,2](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,045                                                                                
+
+P[11,3](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,033                                                                                
+
+P[11,4](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =            0,015                                                                                
+
+P[11,5](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =            0,012                                                                                
+
+P[11,6](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =           -0,001                                                                                
+
+P[11,7](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =            0,003                                                                                
+
+P[11,8](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,027                                                                                
+
+P[11,9](De 1 pt) 
+     Coord. X =          249,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,022                                                                                
+
+P[12,1](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =           -0,002                                                                                
+     Coord. Z =            0,019                                                                                
+
+P[12,2](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =           24,996                                                                                
+     Coord. Z =            0,022                                                                                
+
+P[12,3](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =           49,996                                                                                
+     Coord. Z =            0,023                                                                                
+
+P[12,4](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =           74,996                                                                                
+     Coord. Z =            0,020                                                                                
+
+P[12,5](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =            0,015                                                                                
+
+P[12,6](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =          124,996                                                                                
+     Coord. Z =            0,008                                                                                
+
+P[12,7](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =          149,996                                                                                
+     Coord. Z =           -0,004                                                                                
+
+P[12,8](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =          174,996                                                                                
+     Coord. Z =           -0,006                                                                                
+
+P[12,9](De 1 pt) 
+     Coord. X =          274,998                                                                                
+     Coord. Y =          199,996                                                                                
+     Coord. Z =           -0,020                                                                                
+
+Plan-1(De 108 pt) 
+     Coord. X =          137,498                                                                                
+     Coord. Y =           99,996                                                                                
+     Coord. Z =           -0,006                                                                                
+   Angle (XY) =       111 28'51"                                                                                
+      Angle X =        90  0'24"                                                                                
+      Angle Y =        89 58'59"                                                                                
+      Angle Z =         0  1' 5"                                                                                
+     Planéité =                                            0,049                                                
+    Plan. min =                                            0,031                                                
+    Plan. max =                                            0,018                                                
+

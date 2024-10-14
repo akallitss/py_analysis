@@ -1,0 +1,900 @@
+
+         Elément            Réel       Val. nom.           Ecart       Tol. sup.       Tol. inf.           OK/HT
+                                                        (Dév PR)        (Tol PR)                                
+Point-1(De 1 pt) 
+     Coord. X =            3,443                                                                                
+     Coord. Y =           92,696                                                                                
+     Coord. Z =           10,717                                                                                
+
+Point-2[1,1](De 1 pt) 
+     Coord. X =            0,000                                                                                
+     Coord. Y =            0,000                                                                                
+     Coord. Z =            0,000                                                                                
+
+Point-2[1,2](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,006                                                                                
+
+Point-2[1,3](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,010                                                                                
+
+Point-2[1,4](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,016                                                                                
+
+Point-2[1,5](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,021                                                                                
+
+Point-2[1,6](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,023                                                                                
+
+Point-2[1,7](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,024                                                                                
+
+Point-2[1,8](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,023                                                                                
+
+Point-2[1,9](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,023                                                                                
+
+Point-2[1,10](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,024                                                                                
+
+Point-2[1,11](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,028                                                                                
+
+Point-2[1,12](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,033                                                                                
+
+Point-2[1,13](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,039                                                                                
+
+Point-2[1,14](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,043                                                                                
+
+Point-2[1,15](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,047                                                                                
+
+Point-2[1,16](De 1 pt) 
+     Coord. X =           -0,002                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,057                                                                                
+
+Point-2[2,1](De 1 pt) 
+     Coord. X =           10,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,014                                                                                
+
+Point-2[2,2](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,025                                                                                
+
+Point-2[2,3](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,029                                                                                
+
+Point-2[2,4](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,032                                                                                
+
+Point-2[2,5](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,034                                                                                
+
+Point-2[2,6](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,031                                                                                
+
+Point-2[2,7](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,031                                                                                
+
+Point-2[2,8](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,030                                                                                
+
+Point-2[2,9](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,030                                                                                
+
+Point-2[2,10](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,031                                                                                
+
+Point-2[2,11](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,034                                                                                
+
+Point-2[2,12](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,036                                                                                
+
+Point-2[2,13](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,043                                                                                
+
+Point-2[2,14](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,049                                                                                
+
+Point-2[2,15](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,055                                                                                
+
+Point-2[2,16](De 1 pt) 
+     Coord. X =            9,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,062                                                                                
+
+Point-2[3,1](De 1 pt) 
+     Coord. X =           20,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,031                                                                                
+
+Point-2[3,2](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,038                                                                                
+
+Point-2[3,3](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,039                                                                                
+
+Point-2[3,4](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,038                                                                                
+
+Point-2[3,5](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,036                                                                                
+
+Point-2[3,6](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,032                                                                                
+
+Point-2[3,7](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,029                                                                                
+
+Point-2[3,8](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,027                                                                                
+
+Point-2[3,9](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,029                                                                                
+
+Point-2[3,10](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,031                                                                                
+
+Point-2[3,11](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,035                                                                                
+
+Point-2[3,12](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,038                                                                                
+
+Point-2[3,13](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,045                                                                                
+
+Point-2[3,14](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,052                                                                                
+
+Point-2[3,15](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,058                                                                                
+
+Point-2[3,16](De 1 pt) 
+     Coord. X =           19,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,058                                                                                
+
+Point-2[4,1](De 1 pt) 
+     Coord. X =           30,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,046                                                                                
+
+Point-2[4,2](De 1 pt) 
+     Coord. X =           30,000                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,048                                                                                
+
+Point-2[4,3](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,045                                                                                
+
+Point-2[4,4](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,041                                                                                
+
+Point-2[4,5](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,038                                                                                
+
+Point-2[4,6](De 1 pt) 
+     Coord. X =           30,000                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,035                                                                                
+
+Point-2[4,7](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,032                                                                                
+
+Point-2[4,8](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,032                                                                                
+
+Point-2[4,9](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,032                                                                                
+
+Point-2[4,10](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,035                                                                                
+
+Point-2[4,11](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,040                                                                                
+
+Point-2[4,12](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,045                                                                                
+
+Point-2[4,13](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,052                                                                                
+
+Point-2[4,14](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,057                                                                                
+
+Point-2[4,15](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,062                                                                                
+
+Point-2[4,16](De 1 pt) 
+     Coord. X =           29,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,064                                                                                
+
+Point-2[5,1](De 1 pt) 
+     Coord. X =           40,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,056                                                                                
+
+Point-2[5,2](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,056                                                                                
+
+Point-2[5,3](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,050                                                                                
+
+Point-2[5,4](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,045                                                                                
+
+Point-2[5,5](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,043                                                                                
+
+Point-2[5,6](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,040                                                                                
+
+Point-2[5,7](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,038                                                                                
+
+Point-2[5,8](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,039                                                                                
+
+Point-2[5,9](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,039                                                                                
+
+Point-2[5,10](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,042                                                                                
+
+Point-2[5,11](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,046                                                                                
+
+Point-2[5,12](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,051                                                                                
+
+Point-2[5,13](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,056                                                                                
+
+Point-2[5,14](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,062                                                                                
+
+Point-2[5,15](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,068                                                                                
+
+Point-2[5,16](De 1 pt) 
+     Coord. X =           39,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,070                                                                                
+
+Point-2[6,1](De 1 pt) 
+     Coord. X =           50,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,065                                                                                
+
+Point-2[6,2](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,062                                                                                
+
+Point-2[6,3](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,059                                                                                
+
+Point-2[6,4](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,053                                                                                
+
+Point-2[6,5](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,049                                                                                
+
+Point-2[6,6](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,046                                                                                
+
+Point-2[6,7](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,046                                                                                
+
+Point-2[6,8](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,046                                                                                
+
+Point-2[6,9](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,047                                                                                
+
+Point-2[6,10](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,050                                                                                
+
+Point-2[6,11](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,053                                                                                
+
+Point-2[6,12](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,057                                                                                
+
+Point-2[6,13](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,061                                                                                
+
+Point-2[6,14](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,069                                                                                
+
+Point-2[6,15](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,075                                                                                
+
+Point-2[6,16](De 1 pt) 
+     Coord. X =           49,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,075                                                                                
+
+Point-2[7,1](De 1 pt) 
+     Coord. X =           60,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,076                                                                                
+
+Point-2[7,2](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,073                                                                                
+
+Point-2[7,3](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,068                                                                                
+
+Point-2[7,4](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,061                                                                                
+
+Point-2[7,5](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,056                                                                                
+
+Point-2[7,6](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,051                                                                                
+
+Point-2[7,7](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,052                                                                                
+
+Point-2[7,8](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,053                                                                                
+
+Point-2[7,9](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,054                                                                                
+
+Point-2[7,10](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,054                                                                                
+
+Point-2[7,11](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,058                                                                                
+
+Point-2[7,12](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,062                                                                                
+
+Point-2[7,13](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,066                                                                                
+
+Point-2[7,14](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,074                                                                                
+
+Point-2[7,15](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,081                                                                                
+
+Point-2[7,16](De 1 pt) 
+     Coord. X =           59,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,080                                                                                
+
+Point-2[8,1](De 1 pt) 
+     Coord. X =           70,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,088                                                                                
+
+Point-2[8,2](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,086                                                                                
+
+Point-2[8,3](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,080                                                                                
+
+Point-2[8,4](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,070                                                                                
+
+Point-2[8,5](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,063                                                                                
+
+Point-2[8,6](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,058                                                                                
+
+Point-2[8,7](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,059                                                                                
+
+Point-2[8,8](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,061                                                                                
+
+Point-2[8,9](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,061                                                                                
+
+Point-2[8,10](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,062                                                                                
+
+Point-2[8,11](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,064                                                                                
+
+Point-2[8,12](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,068                                                                                
+
+Point-2[8,13](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,072                                                                                
+
+Point-2[8,14](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,082                                                                                
+
+Point-2[8,15](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,088                                                                                
+
+Point-2[8,16](De 1 pt) 
+     Coord. X =           69,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,083                                                                                
+
+Point-2[9,1](De 1 pt) 
+     Coord. X =           80,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,103                                                                                
+
+Point-2[9,2](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,098                                                                                
+
+Point-2[9,3](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,091                                                                                
+
+Point-2[9,4](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,083                                                                                
+
+Point-2[9,5](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,072                                                                                
+
+Point-2[9,6](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,066                                                                                
+
+Point-2[9,7](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,070                                                                                
+
+Point-2[9,8](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,070                                                                                
+
+Point-2[9,9](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,069                                                                                
+
+Point-2[9,10](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,070                                                                                
+
+Point-2[9,11](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,072                                                                                
+
+Point-2[9,12](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,073                                                                                
+
+Point-2[9,13](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,080                                                                                
+
+Point-2[9,14](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,088                                                                                
+
+Point-2[9,15](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,089                                                                                
+
+Point-2[9,16](De 1 pt) 
+     Coord. X =           79,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,080                                                                                
+
+Point-2[10,1](De 1 pt) 
+     Coord. X =           90,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,114                                                                                
+
+Point-2[10,2](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,110                                                                                
+
+Point-2[10,3](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,105                                                                                
+
+Point-2[10,4](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,098                                                                                
+
+Point-2[10,5](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,088                                                                                
+
+Point-2[10,6](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,082                                                                                
+
+Point-2[10,7](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,084                                                                                
+
+Point-2[10,8](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,083                                                                                
+
+Point-2[10,9](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,081                                                                                
+
+Point-2[10,10](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,079                                                                                
+
+Point-2[10,11](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,081                                                                                
+
+Point-2[10,12](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,082                                                                                
+
+Point-2[10,13](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,089                                                                                
+
+Point-2[10,14](De 1 pt) 
+     Coord. X =           90,000                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,093                                                                                
+
+Point-2[10,15](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,087                                                                                
+
+Point-2[10,16](De 1 pt) 
+     Coord. X =           89,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,071                                                                                
+
+Point-2[11,1](De 1 pt) 
+     Coord. X =          100,000                                                                                
+     Coord. Y =            0,002                                                                                
+     Coord. Z =            0,120                                                                                
+
+Point-2[11,2](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           10,000                                                                                
+     Coord. Z =            0,114                                                                                
+
+Point-2[11,3](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           20,000                                                                                
+     Coord. Z =            0,111                                                                                
+
+Point-2[11,4](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           30,000                                                                                
+     Coord. Z =            0,107                                                                                
+
+Point-2[11,5](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           40,000                                                                                
+     Coord. Z =            0,103                                                                                
+
+Point-2[11,6](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           50,000                                                                                
+     Coord. Z =            0,097                                                                                
+
+Point-2[11,7](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           60,000                                                                                
+     Coord. Z =            0,096                                                                                
+
+Point-2[11,8](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           70,000                                                                                
+     Coord. Z =            0,093                                                                                
+
+Point-2[11,9](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           80,000                                                                                
+     Coord. Z =            0,089                                                                                
+
+Point-2[11,10](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =           90,000                                                                                
+     Coord. Z =            0,085                                                                                
+
+Point-2[11,11](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          100,000                                                                                
+     Coord. Z =            0,086                                                                                
+
+Point-2[11,12](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          110,000                                                                                
+     Coord. Z =            0,090                                                                                
+
+Point-2[11,13](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          120,000                                                                                
+     Coord. Z =            0,093                                                                                
+
+Point-2[11,14](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          130,000                                                                                
+     Coord. Z =            0,092                                                                                
+
+Point-2[11,15](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          140,000                                                                                
+     Coord. Z =            0,081                                                                                
+
+Point-2[11,16](De 1 pt) 
+     Coord. X =           99,998                                                                                
+     Coord. Y =          150,000                                                                                
+     Coord. Z =            0,057                                                                                
+
+Plan-1(De 177 pt) 
+     Coord. X =           49,716                                                                                
+     Coord. Y =           74,576                                                                                
+     Coord. Z =            0,059                                                                                
+   Angle (XY) =         -175,950                                                                                
+      Angle X =           90,039                                                                                
+      Angle Y =           90,003                                                                                
+      Angle Z =            0,039                                                                                
+     Planéité =                                            0,071                                                
+    Plan. min =                                            0,040                                                
+    Plan. max =                                            0,032                                                
+
