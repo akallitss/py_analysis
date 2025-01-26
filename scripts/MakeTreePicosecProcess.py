@@ -51,11 +51,11 @@ def process_runs(base_dir):
     # Process runs which are not already processed
     for run_info in log_run_info_dict:
         print(f'Run info: {run_info}')
-        if (int(run_info['Run']), int(run_info['Pool'])) not in processed_runs:
-            print(f'Run {run_info["Run"]}, Pool {run_info["Pool"]} not processed yet.')
+        if (int(run_info['RunNo']), int(run_info['PoolNo'])) not in processed_runs:
+            print(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} not processed yet.')
             process_run(run_info, base_dir, test_beam_period_dir, root_macro_name)  # Process run
         else:
-            print(f'Run {run_info["Run"]}, Pool {run_info["Pool"]} already processed.')
+            print(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} already processed.')
 
 
 def read_logbook(logbook_path, expected_line_length):
@@ -136,7 +136,7 @@ def test_script(base_dir):
     Test the process run script
     :return:
     """
-    process_run({'Run': 163, 'Pool': 3}, base_dir)
+    process_run({'RunNo': 163, 'PoolNo': 3}, base_dir)
 
 
 def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name):
@@ -158,10 +158,10 @@ def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name):
             osc_file.write(f'{run_info[key]}\t')
 
     script_name = f'code/{root_macro_name}'
-    print(f'Processing run {run_info["Run"]}, pool {run_info["Pool"]}')
+    print(f'Processing run {run_info["RunNo"]}, pool {run_info["PoolNo"]}')
     # Get run and pool number
-    run_number = run_info['Run']
-    pool_number = run_info['Pool']
+    run_number = run_info['RunNo']
+    pool_number = run_info['PoolNo']
 
     # Get the file path
     command = f'root -l -q "{base_dir}{script_name}({run_number}, {pool_number})"'
