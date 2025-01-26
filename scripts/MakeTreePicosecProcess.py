@@ -14,8 +14,7 @@ from subprocess import Popen, PIPE
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
-
+# import pandas as pd
 
 def main():
     # base_dir = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/'  # Laptop ubuntu
