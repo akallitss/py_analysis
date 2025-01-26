@@ -50,6 +50,7 @@ def process_runs(base_dir):
 
     # Process runs which are not already processed
     for run_info in log_run_info_dict:
+        print(f'Run info: {run_info}')
         if (int(run_info['Run']), int(run_info['Pool'])) not in processed_runs:
             print(f'Run {run_info["Run"]}, Pool {run_info["Pool"]} not processed yet.')
             process_run(run_info, base_dir, test_beam_period_dir, root_macro_name)  # Process run
