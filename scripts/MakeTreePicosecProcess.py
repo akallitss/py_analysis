@@ -20,6 +20,7 @@ def main():
     # base_dir = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/'  # Laptop ubuntu
     base_dir = '/eos/project-p/picosec/analysis/Saclay/'  # EOS Server
     test_script(base_dir)
+    # process_runs(base_dir)
     print('bonzo')
 
 
@@ -150,7 +151,7 @@ def process_run(run_info, base_dir):
     pool_number = run_info['Pool']
 
     # Get the file path
-    command = f'root -l "{base_dir}{script_name}({run_number}, {pool_number})"'
+    command = f'root -l -q "{base_dir}{script_name}({run_number}, {pool_number})"'
     print(f'Running command: {command}')
     # Run the script
     # Run the command, outputting directly to the screen
@@ -161,6 +162,12 @@ def process_run(run_info, base_dir):
         stderr=None,  # Allow stderr to go to the terminal
     )
     process.wait()  # Wait for the process to finish
+
+    # Check for errors
+    if process.returncode != 0:
+        print(f"Error: ROOT script failed with return code {process.returncode}")
+        return False
+    return True
 
 
 if __name__ == '__main__':
