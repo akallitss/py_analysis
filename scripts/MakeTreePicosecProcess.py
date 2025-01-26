@@ -10,6 +10,7 @@ Created as py_analysis/MakeTreePicosecProcess.py
 
 import os
 import re
+from subprocess import Popen, PIPE
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,12 +18,21 @@ import pandas as pd
 
 
 def main():
-    base_dir = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/'  # Laptop ubuntu
-    # base_dir = '/eos/project-p/picosec/analysis/Saclay/'  # EOS Server
+    # base_dir = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/'  # Laptop ubuntu
+    base_dir = '/eos/project-p/picosec/analysis/Saclay/'  # EOS Server
+    test_script(base_dir)
+    print('bonzo')
+
+
+def process_runs(base_dir):
+    """
+    Process all runs in the logbook
+    :param base_dir:
+    :return:
+    """
 
     logbook_dir = f'{base_dir}data/2023_August_h4/'
     output_dir = f'{base_dir}data/2023_August_h4/processedTrees/'
-    # logbook_dir = '/home/akallits/Documents'
     logbook_name = 'OsciloscopeSetup_LogbookAll.txt'
     logbook_path = os.path.join(logbook_dir, logbook_name)
     # logbook = pd.read_csv(logbook_path, sep='\t', header=0)
@@ -44,8 +54,6 @@ def main():
             # process_run(run_info, base_dir)
         else:
             print(f'Run {run_info["Run"]}, Pool {run_info["Pool"]} already processed.')
-
-    print('bonzo')
 
 
 def read_logbook(logbook_path, expected_line_length):
@@ -95,6 +103,9 @@ def check_processed_runs(output_dir, crash_byte_threshold):
                 processed_runs.append((run_num, pool_num))
             else:
                 crashed_runs.append((run_num, pool_num))
+                #save the run and pool number to a log file
+                with open('crashed_runs.log', 'a') as log_file:
+                    log_file.write(f'{run_num} {pool_num}\n')
 
     return processed_runs, crashed_runs
 
@@ -116,6 +127,37 @@ def get_run_pool_from_file_name(file_name):
         print(f"No match found in the filename {file_name}.")
         run_number, pool_number = None, None
     return run_number, pool_number
+
+
+def test_script(base_dir):
+    """
+    Test the process run script
+    :return:
+    """
+    process_run({'Run': 80, 'Pool': 3}, base_dir)
+
+
+def process_run(run_info, base_dir):
+    """
+    Process a run
+    :param run_info:
+    :param base_dir:
+    :return:
+    """
+    script_name = 'MakeTreefromRawTreePicosecAug23.C+'
+    print(f'Processing run {run_info["Run"]}, pool {run_info["Pool"]}')
+    # Get run and pool number
+    run_number = run_info['Run']
+    pool_number = run_info['Pool']
+
+    # Get the file path
+    command = f'root -l {script_name}({run_number}, {pool_number})'
+    print(f'Running command: {command}')
+    # Run the script
+    process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate()
+    print(f'stdout: {stdout}')
+    print(f'stderr: {stderr}')
 
 
 if __name__ == '__main__':
