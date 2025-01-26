@@ -133,7 +133,7 @@ def test_script(base_dir):
     Test the process run script
     :return:
     """
-    process_run({'Run': 80, 'Pool': 3}, base_dir)
+    process_run({'Run': 163, 'Pool': 3}, base_dir)
 
 
 def process_run(run_info, base_dir):
@@ -143,14 +143,14 @@ def process_run(run_info, base_dir):
     :param base_dir:
     :return:
     """
-    script_name = 'MakeTreefromRawTreePicosecAug23.C+'
+    script_name = 'code/MakeTreefromRawTreePicosecJune24.C+'
     print(f'Processing run {run_info["Run"]}, pool {run_info["Pool"]}')
     # Get run and pool number
     run_number = run_info['Run']
     pool_number = run_info['Pool']
 
     # Get the file path
-    command = f'root -l "{script_name}({run_number}, {pool_number})"'
+    command = f'root -l "{base_dir}{script_name}({run_number}, {pool_number})"'
     print(f'Running command: {command}')
     # Run the script
     process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
