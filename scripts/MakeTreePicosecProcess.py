@@ -153,10 +153,14 @@ def process_run(run_info, base_dir):
     command = f'root -l "{base_dir}{script_name}({run_number}, {pool_number})"'
     print(f'Running command: {command}')
     # Run the script
-    process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
-    print(f'stdout: {stdout}')
-    print(f'stderr: {stderr}')
+    # Run the command, outputting directly to the screen
+    process = Popen(
+        command,
+        shell=True,
+        stdout=None,  # Allow stdout to go to the terminal
+        stderr=None,  # Allow stderr to go to the terminal
+    )
+    process.wait()  # Wait for the process to finish
 
 
 if __name__ == '__main__':
