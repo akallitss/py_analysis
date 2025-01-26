@@ -11,6 +11,7 @@ Created as py_analysis/MakeTreePicosecProcess.py
 import os
 import re
 from subprocess import Popen, PIPE
+from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,8 +38,9 @@ def process_runs(base_dir):
     output_dir = f'{base_dir}data/{test_beam_period_dir}/processedTrees/'
     logbook_name = 'OsciloscopeSetup_LogbookAll.txt'
     logbook_path = os.path.join(logbook_dir, logbook_name)
+    log_path = f'{logbook_path}MakeTreePicosecProcess.log'
     # logbook = pd.read_csv(logbook_path, sep='\t', header=0)
-    # print(logbook)
+    # print_log(log_path, logbook)
     expected_line_length = 27
     crash_byte_threshold = 1000  # bytes Output root files smaller than this are considered crashed
 
@@ -50,12 +52,16 @@ def process_runs(base_dir):
 
     # Process runs which are not already processed
     for run_info in log_run_info_dict:
-        print(f'Run info: {run_info}')
+        print_log(f'Run info: {run_info}', log_path)
         if (int(run_info['RunNo']), int(run_info['PoolNo'])) not in processed_runs:
-            print(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} not processed yet.')
+            print_log(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} not processed yet.', log_path)
             process_run(run_info, base_dir, test_beam_period_dir, root_macro_name)  # Process run
         else:
-            print(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} already processed.')
+            print_log(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} already processed.', log_path)
+
+    print_log(f'Processed runs: {processed_runs}', log_path)
+    print_log(f'Crashed runs: {crashed_runs}', log_path)
+    print_log(f'Finished processing runs.', log_path)
 
 
 def read_logbook(logbook_path, expected_line_length):
@@ -139,13 +145,14 @@ def test_script(base_dir):
     process_run({'RunNo': 163, 'PoolNo': 3}, base_dir)
 
 
-def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name):
+def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name, log_path=None):
     """
     Process a run
     :param run_info:
     :param base_dir:
     :param test_beam_period_dir:
     :param root_macro_name:
+    :param log_path:
     :return:
     """
     # Remake OscilloscopeSetup.txt with current run info
@@ -158,14 +165,14 @@ def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name):
             osc_file.write(f'{run_info[key]}\t')
 
     script_name = f'code/{root_macro_name}'
-    print(f'Processing run {run_info["RunNo"]}, pool {run_info["PoolNo"]}')
+    print_log(f'Processing run {run_info["RunNo"]}, pool {run_info["PoolNo"]}', log_path)
     # Get run and pool number
     run_number = run_info['RunNo']
     pool_number = run_info['PoolNo']
 
     # Get the file path
     command = f'root -l -q "{base_dir}{script_name}({run_number}, {pool_number})"'
-    print(f'Running command: {command}')
+    print_log(f'Running command: {command}', log_path)
     # Run the script
     # Run the command, outputting directly to the screen
     process = Popen(
@@ -178,9 +185,23 @@ def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name):
 
     # Check for errors
     if process.returncode != 0:
-        print(f"Error: ROOT script failed with return code {process.returncode}")
+        print_log(f"Error: ROOT script failed with return code {process.returncode}", log_path)
         return False
     return True
+
+
+def print_log(message, log_path=None):
+    """
+    Print message to log file
+    :param message:
+    :param log_path:
+    :return:
+    """
+    print(message)
+    if log_path is not None:
+        with open(log_path, 'a') as log_file:
+            date_time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            log_file.write(f'{date_time_str}: {message}\n')
 
 
 if __name__ == '__main__':
