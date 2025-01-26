@@ -150,7 +150,7 @@ def process_run(run_info, base_dir):
     pool_number = run_info['Pool']
 
     # Get the file path
-    command = f'root -l {script_name}({run_number}, {pool_number})'
+    command = f'root -l "{script_name}({run_number}, {pool_number})"'
     print(f'Running command: {command}')
     # Run the script
     process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
