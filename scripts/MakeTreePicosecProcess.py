@@ -38,7 +38,7 @@ def process_runs(base_dir):
     output_dir = f'{base_dir}data/{test_beam_period_dir}/processedTrees/'
     logbook_name = 'OsciloscopeSetup_LogbookAll.txt'
     logbook_path = os.path.join(logbook_dir, logbook_name)
-    log_path = f'{logbook_path}MakeTreePicosecProcess.log'
+    log_path = f'{logbook_dir}MakeTreePicosecProcess.log'
     # logbook = pd.read_csv(logbook_path, sep='\t', header=0)
     # print_log(log_path, logbook)
     expected_line_length = 27
