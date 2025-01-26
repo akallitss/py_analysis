@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
 def main():
     # base_dir = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/'  # Laptop ubuntu
     base_dir = '/eos/project-p/picosec/analysis/Saclay/'  # EOS Server
-    test_script(base_dir)
-    # process_runs(base_dir)
+    # test_script(base_dir)
+    process_runs(base_dir)
     print('bonzo')
 
 
@@ -31,8 +31,10 @@ def process_runs(base_dir):
     :return:
     """
 
-    logbook_dir = f'{base_dir}data/2023_August_h4/'
-    output_dir = f'{base_dir}data/2023_August_h4/processedTrees/'
+    test_beam_period_dir = '2024_June_h4/'
+    root_macro_name = 'MakeTreefromRawTreePicosecJune24.C+'
+    logbook_dir = f'{base_dir}data/{test_beam_period_dir}/'
+    output_dir = f'{base_dir}data/{test_beam_period_dir}/processedTrees/'
     logbook_name = 'OsciloscopeSetup_LogbookAll.txt'
     logbook_path = os.path.join(logbook_dir, logbook_name)
     # logbook = pd.read_csv(logbook_path, sep='\t', header=0)
@@ -50,8 +52,7 @@ def process_runs(base_dir):
     for run_info in log_run_info_dict:
         if (int(run_info['Run']), int(run_info['Pool'])) not in processed_runs:
             print(f'Run {run_info["Run"]}, Pool {run_info["Pool"]} not processed yet.')
-            # Process run
-            # process_run(run_info, base_dir)
+            process_run(run_info, base_dir, test_beam_period_dir, root_macro_name)  # Process run
         else:
             print(f'Run {run_info["Run"]}, Pool {run_info["Pool"]} already processed.')
 
@@ -137,14 +138,25 @@ def test_script(base_dir):
     process_run({'Run': 163, 'Pool': 3}, base_dir)
 
 
-def process_run(run_info, base_dir):
+def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name):
     """
     Process a run
     :param run_info:
     :param base_dir:
+    :param test_beam_period_dir:
+    :param root_macro_name:
     :return:
     """
-    script_name = 'code/MakeTreefromRawTreePicosecJune24.C+'
+    # Remake OscilloscopeSetup.txt with current run info
+    osc_path = f'{base_dir}data/{test_beam_period_dir}/OscilloscopeSetup.txt'
+    with open(osc_path, 'w') as osc_file:
+        for key in run_info:
+            osc_file.write(f'{key}\t')
+        osc_file.write('\n')
+        for key in run_info:
+            osc_file.write(f'{run_info[key]}\t')
+
+    script_name = f'code/{root_macro_name}'
     print(f'Processing run {run_info["Run"]}, pool {run_info["Pool"]}')
     # Get run and pool number
     run_number = run_info['Run']
