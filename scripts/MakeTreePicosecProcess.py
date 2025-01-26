@@ -149,7 +149,7 @@ def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name):
     :return:
     """
     # Remake OscilloscopeSetup.txt with current run info
-    osc_path = f'{base_dir}data/{test_beam_period_dir}/OscilloscopeSetup.txt'
+    osc_path = f'{base_dir}data/{test_beam_period_dir}/OsciloscopeSetup.txt'
     with open(osc_path, 'w') as osc_file:
         for key in run_info:
             osc_file.write(f'{key}\t')
