@@ -56,14 +56,15 @@ def main():
         'k_sigmoid': 0.058  # 1/ns, steepness of the sigmoid
     }
         # threshold parameters
-    threshold = -rms_baseline
-
+    # threshold = -rms_baseline # 1 sigma for 16% tolerance on the accepted background
+    threshold = -3*rms_baseline # 3 sigma for 0.2% tolerance on the accepted background
+    # threshold = -2*rms_baseline # 2 sigma for 2.5% tolerance on the accepted background
     # Define integration points
-    integration_points = [100, 50, 20, 24, 10, 5, 3, 1]
-    # integration_points = np.arange(1, 101, 1)
+    # integration_points = [1400, 1000, 50, 24, 10, 5, 3, 1]
+    integration_points = np.arange(20, 1500, 2)
 
     # Number of waveforms
-    n_waveforms = 2000
+    n_waveforms = 200
     # n_waveforms = 200
     signal_list = np.array([True] * int(n_waveforms / 2) + [False] * int(n_waveforms / 2))
 
@@ -85,11 +86,12 @@ def main():
         for int_points in integration_points:
             # x_int, y_int = integral(x_time, total_waveform, int_points)
             x_int, y_int = integral_numpy(x_time, total_waveform, int_points)
-            did_trigger_fire = trigger_fired(y_int, threshold * int_points)
+            # did_trigger_fire = trigger_fired(y_int, threshold * int_points)
+            did_trigger_fire = trigger_fired(y_int, threshold * np.sqrt(int_points))
             triggers_fired[int_points].append(did_trigger_fire)
 
-        plot_waveform_integrals(x_time, total_waveform, integration_points, threshold)
-        plt.show()
+        # plot_waveform_integrals(x_time, total_waveform, integration_points, threshold)
+        # plt.show()
 
     # Plot amp distribution
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -227,8 +229,10 @@ def plot_waveform_integrals(x, y, integration_points, threshold):
     """
     for int_points in integration_points:
         x_int, y_int = integral(x, y, int_points)
-        plot_integral(x, y, x_int, y_int, int_points, threshold * int_points)
-        print_threshold_fraction(y_int, threshold * int_points)
+        # plot_integral(x, y, x_int, y_int, int_points, threshold * int_points)
+        plot_integral(x, y, x_int, y_int, int_points, threshold * np.sqrt(int_points))
+        # print_threshold_fraction(y_int, threshold * int_points)
+        print_threshold_fraction(y_int, threshold* np.sqrt(int_points))
 
 
 def combine_signal_noise(x, y_signal, y_noise):
