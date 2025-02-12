@@ -43,8 +43,8 @@ def main():
     signal_func = full_fit
     signal_params = {
         # 'amp': -0.0609 * 1,  # mV, amplitude of the signal
-        # 'amp': -0.005,  # mV, amplitude of the signal
-        'amp': lambda: np.random.uniform(-0.005, -1.2),  # mV, amplitude of the signal
+        'amp': 0.0,  # mV, amplitude of the signal
+        # 'amp': lambda: np.random.uniform(-0.005, -1.2),  # mV, amplitude of the signal
         'midpoint_rising': 227.647,  # ns, midpoint of the rising edge
         'steepness_rising': 3.86,  # 1/ns, steepness of the rising edge
         'baseline': 0.00089,  # mV, baseline of the signal
@@ -60,8 +60,8 @@ def main():
     threshold = -3*rms_baseline # 3 sigma for 0.2% tolerance on the accepted background
     # threshold = -2*rms_baseline # 2 sigma for 2.5% tolerance on the accepted background
     # Define integration points
-    # integration_points = [1400, 1000, 50, 24, 10, 5, 3, 1]
-    integration_points = np.arange(20, 1500, 2)
+    integration_points = [1400, 1000, 50, 24, 10, 5, 3, 1]
+    # integration_points = np.arange(20, 1500, 2)
 
     # Number of waveforms
     n_waveforms = 200
@@ -90,8 +90,8 @@ def main():
             did_trigger_fire = trigger_fired(y_int, threshold * np.sqrt(int_points))
             triggers_fired[int_points].append(did_trigger_fire)
 
-        # plot_waveform_integrals(x_time, total_waveform, integration_points, threshold)
-        # plt.show()
+        plot_waveform_integrals(x_time, total_waveform, integration_points, threshold)
+        plt.show()
 
     # Plot amp distribution
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -151,10 +151,10 @@ def main():
 
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    # ax.plot(integration_points, false_positive_fraction, label='False Positive Fraction', marker='o')
+    ax.plot(integration_points, false_positive_fraction, label='False Positive Fraction', marker='o')
     # ax.plot(integration_points, false_negative_fraction, label='False Negative Fraction', marker='o')
     ax.plot(integration_points, true_positive_fraction, label='True Positive Fraction', marker='o')
-    ax.plot(integration_points, true_negative_fraction, label='True Negative Fraction', marker='o')
+    # ax.plot(integration_points, true_negative_fraction, label='True Negative Fraction', marker='o')
     ax.set_xlabel('Integration Points', fontsize=16, fontweight='bold', family='serif')
     ax.set_ylabel('Fraction', fontsize=16, fontweight='bold', family='serif')
     ax.set_title('Trigger Evaluation', fontsize=18, fontweight='bold', family='serif')
@@ -437,9 +437,10 @@ def plot_integral(x, y, x_int, y_int, n, threshold):
     # Histogram of integral points
     ax_hist.hist(y_int, bins=20, orientation='horizontal', color='blue', edgecolor='black', alpha=0.3)
 
+    ax_hist.yaxis.set_visible(False)  # This ensures the main plot retains its y-axis labels
 
     # Remove labels and ticks for clarity
-    ax_hist.set_yticklabels([])
+    # ax_hist.set_yticklabels([])
     ax_hist.set_xticks([])
     ax_hist.spines['top'].set_visible(False)
     ax_hist.spines['bottom'].set_visible(False)
