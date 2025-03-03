@@ -243,15 +243,16 @@ def generate_noise(n, baseline, rms_baseline):
     return y_noise
 
 
-def generate_signal(x, signal_func, signal_params):
+def generate_signal(x, signal_func, signal_params, x_shift=0):
     """
     Generate a signal
     :param x: time points
     :param signal_func: signal function
     :param signal_params: signal parameters
+    :param x_shift: x shift
     :return: y_signal
     """
-    y_signal = signal_func(x, *signal_params)
+    y_signal = signal_func(x + x_shift, *signal_params)
     return y_signal
 
 
@@ -326,6 +327,27 @@ def integral_numpy(x, y, n):
     x_int = np.convolve(x, np.ones(n), 'valid') / n
     y_int = np.convolve(y, np.ones(n), 'valid')
     return x_int, y_int
+
+
+def derivative_numpy(x, y):
+    """
+    Compute the numerical derivative of a waveform.
+
+    Args:
+        x (array): X values of the waveform.
+        y (array): Y values of the waveform.
+
+    Returns:
+        x_avg (array): Midpoints of x values for better alignment.
+        dy_dx (array): Numerical derivative dy/dx.
+    """
+    dy_dx = np.gradient(y, x)  # Compute derivative
+
+    # Compute midpoints of x for better alignment
+    x_avg = (x[:-1] + x[1:]) / 2
+
+    return x_avg, dy_dx[:-1]  # Trim dy_dx to match the length of x_avg
+
 
 
 
