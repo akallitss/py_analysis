@@ -41,61 +41,98 @@ def main():
     #     'steepness_falling': -1.52,  # 1/ns, steepness of the falling edge
     # }
     signal_func = full_fit
+    # signal_params = {
+    #     # 'amp': -0.0609 * 1,  # mV, amplitude of the signal
+    #     'amp': 0.0,  # mV, amplitude of the signal
+    #     # 'amp': lambda: np.random.uniform(-0.001, -0.1),  # mV, amplitude of the signal
+    #     'midpoint_rising': 227.647,  # ns, midpoint of the rising edge
+    #     'steepness_rising': 3.86,  # 1/ns, steepness of the rising edge
+    #     'baseline': 0.00089,  # mV, baseline of the signal
+    #     'midpoint_falling': 230.427,  # ns, midpoint of the falling edge
+    #     'steepness_falling': -1.52,  # 1/ns, steepness of the falling edge
+    #     'amp_ion': 0.215,  # fraction of amplitude of electron peak
+    #     'steepness_ion': 0.0198,  # 1/ns, steepness of the ion tail
+    #     'x_sigmoid': 259,  # ns, x value of the sigmoid
+    #     'k_sigmoid': 0.058  # 1/ns, steepness of the sigmoid
+    # }
     signal_params = {
-        # 'amp': -0.0609 * 1,  # mV, amplitude of the signal
-        'amp': 0.0,  # mV, amplitude of the signal
-        # 'amp': lambda: np.random.uniform(-0.005, -1.2),  # mV, amplitude of the signal
-        'midpoint_rising': 227.647,  # ns, midpoint of the rising edge
-        'steepness_rising': 3.86,  # 1/ns, steepness of the rising edge
-        'baseline': 0.00089,  # mV, baseline of the signal
-        'midpoint_falling': 230.427,  # ns, midpoint of the falling edge
-        'steepness_falling': -1.52,  # 1/ns, steepness of the falling edge
-        'amp_ion': 0.215,  # fraction of amplitude of electron peak
-        'steepness_ion': 0.0198,  # 1/ns, steepness of the ion tail
-        'x_sigmoid': 259,  # ns, x value of the sigmoid
-        'k_sigmoid': 0.058  # 1/ns, steepness of the sigmoid
+        'amp': -10051.0,  # mV, amplitude of the signal, not good representation of the signal
+        # 'amp': lambda: np.random.uniform(-0.001, -0.1),  # mV, amplitude of the signal
+        'midpoint_rising': 213.9648,  # ns, midpoint of the rising edge
+        'steepness_rising': 4.71,  # 1/ns, steepness of the rising edge
+        'baseline': 0.000859,  # mV, baseline of the signal
+        'midpoint_falling': 167,  # ns, midpoint of the falling edge
+        'steepness_falling': -0.2208,  # 1/ns, steepness of the falling edge
+        'amp_ion': 7.589e-06,  # fraction of amplitude of electron peak
+        'steepness_ion': -0.0565,  # 1/ns, steepness of the ion tail
+        'x_sigmoid': 245.10,  # ns, x value of the sigmoid
+        'k_sigmoid': -0.0756  # 1/ns, steepness of the sigmoid
     }
+
+    fig_sig, ax_sig = plt.subplots(figsize=(8, 6))
+    ax_sig.plot(x_time, generate_signal(x_time, signal_func, list(signal_params.values())), color='blue')
+    ax_sig.set_xlabel('Time (ns)', fontsize=16, fontweight='bold', family='serif')
+    ax_sig.set_ylabel('Voltage (V)', fontsize=16, fontweight='bold', family='serif')
+    ax_sig.set_title('Signal', fontsize=18, fontweight='bold', family='serif')
+    ax_sig.tick_params(axis='both', which='both', direction='in', length=8, width=2, labelsize=14)
+    for spine in ax_sig.spines.values():
+        spine.set_linewidth(2)
+    ax_sig.grid(False)
+    fig_sig.tight_layout()
+
+    param_amp = -0.3 # mV Parametrized signal amplitude
+    amp_dist = lambda: np.random.uniform(-0.001, -0.1) # mV, amplitude of the signal
         # threshold parameters
     # threshold = -rms_baseline # 1 sigma for 16% tolerance on the accepted background
-    threshold = -3*rms_baseline # 3 sigma for 0.2% tolerance on the accepted background
+    # threshold = -3*rms_baseline # 3 sigma for 0.2% tolerance on the accepted background
+    threshold = -6*rms_baseline # 3 sigma for 0.2% tolerance on the accepted background
     # threshold = -2*rms_baseline # 2 sigma for 2.5% tolerance on the accepted background
     # Define integration points
-    integration_points = [1400, 1000, 50, 24, 10, 5, 3, 1]
+    # integration_points = [1400, 1000, 50, 24, 10, 5, 3, 1]
+    integration_points = [500, 200, 100, 80, 70, 60, 50, 40, 30, 25, 20, 15, 10, 5, 3, 1]
     # integration_points = np.arange(20, 1500, 2)
 
     # Number of waveforms
-    n_waveforms = 200
+    n_waveforms = 5000
     # n_waveforms = 200
     signal_list = np.array([True] * int(n_waveforms / 2) + [False] * int(n_waveforms / 2))
 
     # Run Simulation
     triggers_fired = {int_points: [] for int_points in integration_points}
-    amps = []
+    amps, amps_triggerd = [], []
     for i in range(n_waveforms):
         print(f'Waveform {i}')
         if signal_list[i]:
             sig_params = {key: signal_params[key]() if callable(signal_params[key]) else signal_params[key]
                             for key in signal_params}
-            amps.append(sig_params['amp'])
-            y_signal = generate_signal(x_time, signal_func, list(sig_params.values()))
+            scale_amp = amp_dist() / param_amp
+            # amps.append(sig_params['amp'])
+            amps.append(scale_amp * param_amp)
+            y_signal = generate_signal(x_time, signal_func, list(sig_params.values())) * scale_amp
         else:
             y_signal = np.zeros(n_time_points)
         y_noise = generate_noise(n_time_points, baseline, rms_baseline)
         total_waveform = combine_signal_noise(x_time, y_signal, y_noise)
 
+        any_trigger_fire = False
         for int_points in integration_points:
             # x_int, y_int = integral(x_time, total_waveform, int_points)
             x_int, y_int = integral_numpy(x_time, total_waveform, int_points)
             # did_trigger_fire = trigger_fired(y_int, threshold * int_points)
             did_trigger_fire = trigger_fired(y_int, threshold * np.sqrt(int_points))
             triggers_fired[int_points].append(did_trigger_fire)
+            any_trigger_fire = any_trigger_fire or did_trigger_fire
+        if signal_list[i] and any_trigger_fire:
+            amps_triggerd.append(scale_amp *
+                                 param_amp)
 
-        plot_waveform_integrals(x_time, total_waveform, integration_points, threshold)
-        plt.show()
+        # plot_waveform_integrals(x_time, total_waveform, integration_points, threshold)
+        # plt.show()
 
     # Plot amp distribution
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.hist(amps, bins=20, color='gray', edgecolor='black', alpha=0.3)
+    hist, bin_edges, _ = ax.hist(amps, bins=20, color='gray', edgecolor='black', alpha=0.3)
+    ax.hist(amps_triggerd, bins=bin_edges, color='blue', edgecolor='black', alpha=0.3)
     ax.set_xlabel('Amplitude (V)', fontsize=16, fontweight='bold', family='serif')
     ax.set_ylabel('Counts', fontsize=16, fontweight='bold', family='serif')
     ax.set_title('Amplitude Distribution', fontsize=18, fontweight='bold', family='serif')
