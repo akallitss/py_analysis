@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit as cf
 import pandas as pd
 
-from simulation_trigger import full_fit, integral
+from simulation_trigger import full_fit, integral, full_fit
 from Measure import Measure
 
 
@@ -43,30 +43,45 @@ def main():
     #     'x_sigmoid': 259,  # ns, x value of the sigmoid
     #     'k_sigmoid': 0.058  # 1/ns, steepness of the sigmoid
     # }
+    # params = {
+    #     'amp': -0.0609,  # mV, amplitude of the signal
+    #     'midpoint_rising': 227.647,  # ns, midpoint of the rising edge
+    #     'steepness_rising': 3.86,  # 1/ns, steepness of the rising edge
+    #     'baseline': 0.00089,  # mV, baseline of the signal
+    #     'midpoint_falling': 230.427,  # ns, midpoint of the falling edge
+    #     'steepness_falling': -1.52,  # 1/ns, steepness of the falling edge
+    #     'amp_ion': 0.215,  # mV, amplitude of the ion tail
+    #     # 'steepness_ion': 0.0198,  # 1/ns, steepness of the ion tail
+    #     'x_sigmoid': 259,  # ns, x value of the sigmoid
+    #     'k_sigmoid': 0.058  # 1/ns, steepness of the sigmoid
+    # }
+
     params = {
-        'amp': -0.0609,  # mV, amplitude of the signal
-        'midpoint_rising': 227.647,  # ns, midpoint of the rising edge
+        'amp': -0.309,  # mV, amplitude of the signal
+        'midpoint_rising': 213.647,  # ns, midpoint of the rising edge
         'steepness_rising': 3.86,  # 1/ns, steepness of the rising edge
         'baseline': 0.00089,  # mV, baseline of the signal
-        'midpoint_falling': 230.427,  # ns, midpoint of the falling edge
+        'midpoint_falling': 217.427,  # ns, midpoint of the falling edge
         'steepness_falling': -1.52,  # 1/ns, steepness of the falling edge
         'amp_ion': 0.215,  # mV, amplitude of the ion tail
-        'steepness_ion': 0.0198,  # 1/ns, steepness of the ion tail
-        'x_sigmoid': 259,  # ns, x value of the sigmoid
-        'k_sigmoid': 0.058  # 1/ns, steepness of the sigmoid
+        'steepness_ion': -0.0198,  # 1/ns, steepness of the ion tail
+        'x_sigmoid': 250,  # ns, x value of the sigmoid
+        'k_sigmoid': -0.058  # 1/ns, steepness of the sigmoid
     }
+
+    func = full_fit
 
     p0 = list(params.values())
     x_plot = np.linspace(min(time), max(time), 10000)
-    ax.plot(x_plot, full_fit(x_plot, *p0), color='blue', label='Initial Guess')
+    ax.plot(x_plot, func(x_plot, *p0), color='blue', label='Initial Guess')
 
-    popt, pcov = cf(full_fit, time, event_data_df['data'], p0)
+    popt, pcov = cf(func, time, event_data_df['data'], p0, maxfev=10000)
     perr = np.sqrt(np.diag(pcov))
     meases = {key: Measure(val, err) for key, val, err in zip(params.keys(), popt, perr)}
     for key, val in meases.items():
-        print(f'{key}: {val}')
+        print(f'{key}: {val}, {val.val}')
 
-    ax.plot(x_plot, full_fit(x_plot, *popt), color='red', ls='--', label='Fitted Curve')
+    ax.plot(x_plot, func(x_plot, *popt), color='red', ls='--', label='Fitted Curve')
 
     fig, ax = plt.subplots()
     ax.plot(time, event_data_df['data'], color='black')
