@@ -95,7 +95,7 @@ def main():
     n_pt_threshold = threshold * np.sqrt(window_finding_integration_points)
 
     x_int, y_int = integral_numpy(x_time, total_waveform, window_finding_integration_points)
-    x_bounds = find_pulse_bounds(x_int, y_int, n_pt_threshold, electron_peak_width, ion_tail_width)
+    x_bounds = find_pulse_bounds(x_int, y_int, n_pt_threshold, ion_tail_width)
 
     fig_wave, ax_wave = plt.subplots(figsize=(8, 6))
     ax_wave.plot(x_time, total_waveform, color='blue')
@@ -152,7 +152,7 @@ def main():
     print('donzo')
 
 
-def find_pulse_bounds(x_int, y_int, threshold, electron_peak_width=5, ion_tail_width=100, end_frac=0.01):
+def find_pulse_bounds(x_int, y_int, threshold, ion_tail_width=100, end_frac=0.01):
     """
     Find the bounds of a pulse in a waveform integral. Get the min point and then find the points where the integral
     drops above a fraction of this min on either side of the min point.
@@ -160,7 +160,6 @@ def find_pulse_bounds(x_int, y_int, threshold, electron_peak_width=5, ion_tail_w
         x_int:
         y_int:
         threshold:
-        electron_peak_width:
         ion_tail_width:
         end_frac:
 
