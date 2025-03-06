@@ -349,7 +349,27 @@ def derivative_numpy(x, y):
     return x_avg, dy_dx[:-1]  # Trim dy_dx to match the length of x_avg
 
 
+def derivate_array(x, y, n):
+    # Calculate the derivative of the waveform in both x and y for n points
+    x_avg = []
+    dy_dx = []
+    for i in range(len(x) - n + 1):
+        x_avg.append(np.mean(x[i:i + n]))
+        dy_dx.append(np.mean(np.diff(y[i:i + n]) / np.diff(x[i:i + n])))
+    return np.array(x_avg), np.array(dy_dx)
 
+
+def derivative_thomas(x, y, n=1):
+    """
+    Calculate the derivative between nth neighbor points.
+    :param x:
+    :param y:
+    :param n:
+    :return:
+    """
+    dy_dx = (np.array(y)[n:] - np.array(y)[:-n]) / (np.array(x)[n:] - np.array(x)[:-n])
+    x_avg = (np.array(x)[n:] + np.array(x)[:-n]) / 2
+    return x_avg, dy_dx
 
 def gaus_func(x, a, mu, sigma):
     """
