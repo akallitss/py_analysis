@@ -147,6 +147,21 @@ def main():
     ax_int_sec.grid(False)
     fig_int_sec.tight_layout()
 
+    y_cdf = get_cdf(x_int, y_int)
+    fig_cdf, ax_cdf = plt.subplots(figsize=(8, 6))
+    ax_cdf.plot(x_int, y_cdf, color='blue')
+    for (x_left, x_right) in x_bounds:
+        ax_cdf.axvline(x_left, color='green', linestyle='-')
+        ax_cdf.axvline(x_right, color='green', linestyle='-')
+    ax_cdf.set_xlabel('Time (ns)', fontsize=16, fontweight='bold', family='serif')
+    ax_cdf.set_ylabel('Voltage (V)', fontsize=16, fontweight='bold', family='serif')
+    ax_cdf.set_title('Waveform Integral CDF', fontsize=18, fontweight='bold', family='serif')
+    ax_cdf.tick_params(axis='both', which='both', direction='in', length=8, width=2, labelsize=14)
+    for spine in ax_cdf.spines.values():
+        spine.set_linewidth(2)
+    ax_cdf.grid(False)
+    fig_cdf.tight_layout()
+
     plt.show()
 
     print('donzo')
@@ -217,6 +232,20 @@ def identify_secondary_pulses(x_int, y_int, x_left, x_right):
     """
     pass
 
+
+def get_cdf(x, y):
+    """
+    Get the cumulative distribution function of a function.
+    Args:
+        x:
+        y:
+
+    Returns:
+
+    """
+    cdf = np.cumsum(y)
+    cdf = cdf / cdf[-1]
+    return cdf
 
 
 if __name__ == '__main__':
