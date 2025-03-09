@@ -99,8 +99,7 @@ def main():
 
     x_int, y_int = integral_numpy(x_time, total_waveform, window_finding_integration_points)
     
-    x_bounds = find_pulse_bounds(x_int, y_int, n_pt_threshold, electron_peak_width, ion_tail_width)
-    x_bounds = find_pulse_bounds2(x_time, total_waveform, n_pt_threshold, electron_peak_width, ion_tail_width, window_finding_integration_points)
+    x_bounds = find_pulse_bounds(x_time, total_waveform, n_pt_threshold, electron_peak_width, ion_tail_width, window_finding_integration_points)
     
     fig_wave, ax_wave = plt.subplots(figsize=(8, 6))
     ax_wave.plot(x_time, total_waveform, color='blue')
@@ -212,66 +211,7 @@ def main():
     print('donzo')
 
 
-def find_pulse_bounds(x_int, y_int, threshold, ion_tail_width=100, end_frac=0.01):
-    """
-    Find the bounds of a pulse in a waveform integral. Get the min point and then find the points where the integral
-    drops above a fraction of this min on either side of the min point.
-    Args:
-        x_int:
-        y_int:
-        threshold:
-        ion_tail_width:
-        end_frac:
-
-    Returns:
-
-    """
-    signal_bounds = []
-    waveform_finished = False
-    i_start = 0
-    while not waveform_finished:
-        # Get first point below threshold
-        i_triggers = np.where(y_int[i_start:] < threshold)[0]
-        if len(i_triggers) == 0:
-            waveform_finished = True
-            break
-        i_trigger = i_triggers[0] + i_start
-
-        # Get min point within ion tail width
-        x_trigger = x_int[i_trigger]
-        x_end = x_trigger + ion_tail_width
-        try:
-            i_end = np.where(x_int > x_end)[0][0]
-        except IndexError:  # Too close to the end of the waveform
-            break
-
-        i_min = np.argmin(y_int[i_trigger:i_end]) + i_trigger
-        y_min = y_int[i_min]
-
-        y_end = y_min * end_frac
-
-        print(x_trigger, x_end, y_min, y_end)
-
-        # Get first point to left of minimum above end fraction of min
-        try:
-            i_left = np.where(y_int[i_start:i_min] > y_end)[0][-1] + i_start
-        except IndexError:
-            i_left = i_start
-
-        # Get first point to right of minimum above end fraction of min
-        try:
-            i_right = np.where(y_int[i_min:] > y_end)[0][0] + i_min
-        except IndexError:
-            i_right = len(x_int) - 1
-
-        signal_bounds.append((x_int[i_left], x_int[i_right]))
-        print(signal_bounds)
-        i_start = i_right
-
-    return signal_bounds
-
-
-def find_pulse_bounds2(x_time, y_waveform, threshold, electron_peak_width=5, ion_tail_width=100, trigger_points=50, dt=0.1):
+def find_pulse_bounds(x_time, y_waveform, threshold, electron_peak_width=5, ion_tail_width=100, trigger_points=50, dt=0.1):
     """
     Find the bounds of a pulse in a waveform. Get the min point and then find the points where the integral
     drops above a fraction of this min on either side of the min point.
@@ -344,9 +284,10 @@ def find_pulse_bounds2(x_time, y_waveform, threshold, electron_peak_width=5, ion
 
     # Plot
     fig, ax = plt.subplots()
-    ax.plot(x_time, y_waveform, color='blue')
-    ax.plot(x_epeak_mv_avg_deriv, y_epeak_mv_avg_deriv, color='red')
-    ax.plot(x_epeak_mv_avg_deriv_mv_avg, y_epeak_mv_avg_deriv_mv_avg, color='orange')
+    ax.plot(x_time, y_waveform, color='blue', label='Original Waveform')
+    ax.plot(x_epeak_mv_avg, y_epeak_mv_avg, color='green', label='Smoothed Waveform')
+    ax.plot(x_epeak_mv_avg_deriv, y_epeak_mv_avg_deriv, color='red', label='Derivative of Smoothed')
+    ax.plot(x_epeak_mv_avg_deriv_mv_avg, y_epeak_mv_avg_deriv_mv_avg, color='orange', label='Smoothed Derivative')
 
     secondary_reject = [False] * len(signal_bounds)
     secondary_dydx_threshold = 0.05
@@ -374,6 +315,7 @@ def find_pulse_bounds2(x_time, y_waveform, threshold, electron_peak_width=5, ion
     ax.set_ylabel('Voltage (V)', fontsize=16, fontweight='bold', family='serif')
     ax.set_title('Waveform', fontsize=18, fontweight='bold', family='serif')
     ax.tick_params(axis='both', which='both', direction='in', length=8, width=2, labelsize=14)
+    ax.legend()
     for spine in ax.spines.values():
         spine.set_linewidth(2)
     ax.grid(False)
