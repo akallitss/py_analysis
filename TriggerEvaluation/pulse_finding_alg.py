@@ -73,7 +73,10 @@ def main():
     # threshold parameters
     threshold = -6 * rms_baseline  # 3 sigma for 0.2% tolerance on the accepted background
     window_finding_integration_points = 50
-    secondary_finding_integration_points = 20
+    # secondary_finding_integration_points = 20
+    secondary_finding_integration_points = 50
+    # epeak_finding_integration_points = 50
+    iontail_finding_integration_points = 1200
 
     # Number of waveforms
     n_waveforms = 5000
@@ -95,9 +98,10 @@ def main():
     n_pt_threshold = threshold * np.sqrt(window_finding_integration_points)
 
     x_int, y_int = integral_numpy(x_time, total_waveform, window_finding_integration_points)
+    
     x_bounds = find_pulse_bounds(x_int, y_int, n_pt_threshold, electron_peak_width, ion_tail_width)
     x_bounds = find_pulse_bounds2(x_time, total_waveform, n_pt_threshold, electron_peak_width, ion_tail_width, window_finding_integration_points)
-
+    
     fig_wave, ax_wave = plt.subplots(figsize=(8, 6))
     ax_wave.plot(x_time, total_waveform, color='blue')
     for (x_left, x_right) in x_bounds:
@@ -127,21 +131,40 @@ def main():
     ax_int.grid(False)
     fig_int.tight_layout()
 
-    x_int_sec, y_int_sec = integral_numpy(x_time, total_waveform, secondary_finding_integration_points)
-    x_deriv_sec, y_deriv_sec = derivative_numpy(x_int_sec, y_int_sec)
-    x_deriv_int_sec, y_deriv_int_sec = integral_numpy(x_deriv_sec, y_deriv_sec, secondary_finding_integration_points)
-    # Plot 20 point integral
+    # x_int_sec, y_int_sec = integral_numpy(x_time, total_waveform, secondary_finding_integration_points)
+    x_deriv, y_deriv = derivate_array(x_time, total_waveform, iontail_finding_integration_points)
+    x_deriv_dyl, y_deriv_dyl = derivative_numpy(x_time, total_waveform)
+    x_der_int_dyl, y_der_int_dyl = integral_numpy(x_deriv_dyl, y_deriv_dyl, iontail_finding_integration_points)
+    x_der_thom, y_deriv_thom = derivative_thomas(x_time, total_waveform, iontail_finding_integration_points)
+    # x_deriv_sec, y_deriv_sec = derivative_numpy(x_int_sec, y_int_sec)
+    # x_int_third, y_int_third = integral_numpy(x_deriv, y_deriv, window_finding_integration_points)
+    # x_derivate_array, y_derivate_array = derivate_array(x_int_sec, y_int_sec,100)
+    # x_deriv_int_sec, y_deriv_int_sec = integral_numpy(x_deriv_sec, y_deriv_sec, secondary_finding_integration_points*120)
+    # Plot # point integral
     fig_int_sec, ax_int_sec = plt.subplots(figsize=(8, 6))
-    ax_int_sec.plot(x_int_sec, y_int_sec, color='blue')
-    ax_int_sec.plot(x_deriv_sec, y_deriv_sec, color='red')
-    ax_int_sec.plot(x_deriv_int_sec, y_deriv_int_sec, color='orange')
+    # ax_int_sec.plot(x_int_sec, y_int_sec, color='blue')
+    # ax_int_sec.plot(x_time, total_waveform, color='black')
+    # ax_int_sec.plot(x_int_epeak, y_int_epeak, color='green')
+    ax_int_sec.plot(x_deriv, y_deriv, color='red')
+    # ax_int_sec.plot(x_der_int_dyl, y_der_int_dyl / 1000, color='green', zorder=0)
+    ax_int_sec.plot(x_der_thom, y_deriv_thom, color='orange', zorder=10)
+    # ax_int_sec.plot(x_int_third, y_int_third, color='orange')
+    # ax_int_sec.plot(x_deriv_sec, y_deriv_sec, color='red')
+    # ax_int_sec.plot(x_derivate_array, y_derivate_array, color='orange')
+    # ax_int_sec.plot(x_deriv_int_sec, y_deriv_int_sec / secondary_finding_integration_points, color='orange')
+    # add right left bounds lines to the plot
+    # for (x_left, x_right) in x_bounds:
+    #     print(x_left, x_right)
+    #     ax_int_sec.axvline(x_left, color='green', linestyle='-')
+    #     ax_int_sec.axvline(x_right, color='green', linestyle='-')
+    ax_int_sec.axhline(0, color='gray', linestyle='-', zorder=0)
     # ax_int_sec.axhline(n_pt_threshold, color='red', linestyle='--')
     for (x_left, x_right) in x_bounds:
         ax_int_sec.axvline(x_left, color='green', linestyle='-')
         ax_int_sec.axvline(x_right, color='green', linestyle='-')
     ax_int_sec.set_xlabel('Time (ns)', fontsize=16, fontweight='bold', family='serif')
     ax_int_sec.set_ylabel('Voltage (V)', fontsize=16, fontweight='bold', family='serif')
-    ax_int_sec.set_title('Waveform Integral 20 Points', fontsize=18, fontweight='bold', family='serif')
+    ax_int_sec.set_title('Waveform Integral', fontsize=18, fontweight='bold', family='serif')
     ax_int_sec.tick_params(axis='both', which='both', direction='in', length=8, width=2, labelsize=14)
     for spine in ax_int_sec.spines.values():
         spine.set_linewidth(2)
@@ -189,7 +212,7 @@ def main():
     print('donzo')
 
 
-def find_pulse_bounds(x_int, y_int, threshold, electron_peak_width=5, ion_tail_width=100, end_frac=0.01):
+def find_pulse_bounds(x_int, y_int, threshold, ion_tail_width=100, end_frac=0.01):
     """
     Find the bounds of a pulse in a waveform integral. Get the min point and then find the points where the integral
     drops above a fraction of this min on either side of the min point.
@@ -197,7 +220,6 @@ def find_pulse_bounds(x_int, y_int, threshold, electron_peak_width=5, ion_tail_w
         x_int:
         y_int:
         threshold:
-        electron_peak_width:
         ion_tail_width:
         end_frac:
 
