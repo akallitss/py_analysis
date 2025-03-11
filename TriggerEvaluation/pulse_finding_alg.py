@@ -325,12 +325,15 @@ def find_pulse_bounds(x_time, y_waveform, threshold, electron_peak_width=5, ion_
     print(f'Secondary Reject: {secondary_reject}')
 
     # Use CDF to rework right bound for each window
-    y_cdf = get_cdf(x_time, y_waveform)
+    y_cdf = get_cdf(x_time, y_waveform, norm=False)
+    x_der_cdf, y_der_cdf = derivative_numpy(x_time, y_cdf)
+    y_cdf_norm = get_cdf(x_time, y_waveform, norm=True)
 
     # Plot
     fig, ax = plt.subplots()
-    ax.plot(x_time, y_waveform, color='blue')
-    ax.plot(x_time, y_cdf, color='red')
+    ax.plot(x_time, y_waveform, color='blue', label='Original Waveform')
+    ax.plot(x_time, y_cdf_norm, color='red', label='CDF Normalized')
+    ax.plot(x_der_cdf, y_der_cdf / 10, color='green', label='Derivative of CDF')
 
     for bound_i, (x_left, x_right) in enumerate(signal_bounds):
         # Plot original bounds
@@ -366,6 +369,7 @@ def find_pulse_bounds(x_time, y_waveform, threshold, electron_peak_width=5, ion_
     for spine in ax.spines.values():
         spine.set_linewidth(2)
     ax.grid(False)
+    ax.legend()
     fig.tight_layout()
     plt.show()
 
@@ -385,18 +389,20 @@ def identify_secondary_pulses(x_int, y_int, x_left, x_right):
     pass
 
 
-def get_cdf(x, y):
+def get_cdf(x, y, norm=True):
     """
     Get the cumulative distribution function of a function.
     Args:
         x:
         y:
+        norm:
 
     Returns:
 
     """
     cdf = np.cumsum(y)
-    cdf = cdf / cdf[-1]
+    if norm:
+        cdf = cdf / cdf[-1]
     return cdf
 
 
