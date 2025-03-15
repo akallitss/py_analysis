@@ -10,47 +10,78 @@ Created as pico_py_analysis/calculate_rms_baseline_vs_time.py
 
 import numpy as np
 import matplotlib.pyplot as plt
-import ROOT
+import uproot
+
+from TriggerEvaluation.simulation_trigger import moving_average_numpy
+
+# import ROOT
 
 
 def main():
-    base_path = 'C:/Users/Dylan/Desktop/picosec/'
+    # base_path = 'C:/Users/Dylan/Desktop/picosec/'
+    base_path = '/home/dylan/Desktop/picosec/data/'
     file_name = 'Run224-Pool2_TESTBEAM_tree.root'
     file_path = base_path + file_name
     tree_name = 'RawDataTree'
-    var_names = ['epoch', 'ampl']
+    channel = 2
+    var_names = ['epoch', f'amplC{channel}', 'eventNo']
     event_start = 0
-    event_end = 1000
+    # event_end = 10000
+    event_end = None
     # Open ROOT file
-    file = ROOT.TFile.Open(file_path, "READ")
-    if not file or file.IsZombie():
-        print(f"Error: Could not open file {file_path}")
-        return
+    with uproot.open(file_path) as file:
+        tree = file[tree_name]
+        events = tree.arrays(var_names, entry_start=event_start, entry_stop=event_end, library='np')
 
-    # Get the TTree
-    tree = file.Get(tree_name)
-    if not tree:
-        print(f"Error: Could not find tree {tree_name} in file {file_path}")
-        return
+        # Get data from tree
+        epochs = events['epoch']
+        time_from_start = epochs - epochs[0]
+        ampls = events[f'amplC{channel}']
+        ampls = np.stack(ampls, axis=0)
+        event_num = events['eventNo']
 
-    # Initialize storage for branch data
-    data = {var: [] for var in var_names}
+        baselines = np.mean(ampls[:, 0:1000], axis=1)
 
-    # Loop over events in the specified range
-    for i in range(event_start, min(event_end, tree.GetEntries())):
-        tree.GetEntry(i)
-        for var in var_names:
-            data[var].append(getattr(tree, var))
+        print(time_from_start)
+        print(baselines)
+        print(epochs)
 
-    # Convert lists to NumPy arrays
-    for var in var_names:
-        data[var] = np.array(data[var])
+        print(time_from_start.shape)
+        print(baselines.shape)
 
-    print(data)
-    print("donzo")
+        # Plot baseline vs time
+        plt.figure(figsize=(8, 6))
+        plt.scatter(time_from_start, baselines, alpha=0.5)
+        plt.xlabel('Run Time (s)')
+        plt.ylabel('Baseline')
+        plt.tight_layout()
 
-    file.Close()
+        # Group by common epoch, plot baseline vs event num as new series for each epoch num
+        epoch_nums = np.unique(epochs)
+        colors = plt.cm.viridis(np.linspace(0, 1, len(epoch_nums)))
+        fig_raw, ax_raw = plt.subplots(figsize=(8, 6))
+        fig_mv_avg, ax_mv_avg = plt.subplots(figsize=(8, 6))
+        for i, epoch_num in enumerate(epoch_nums):
+            epoch_mask = epochs == epoch_num
+            epoch_event_num = event_num[epoch_mask] - event_num[epoch_mask][0]
+            ax_raw.scatter(epoch_event_num, baselines[epoch_mask], alpha=0.5, color=colors[i], label=f'Epoch {epoch_num}')
+            # Calculate 80 point moving average and plot
+            event_num_avg, baseline_avg = moving_average_numpy(epoch_event_num, baselines[epoch_mask], 80)
+            ax_raw.plot(event_num_avg, baseline_avg, color=colors[i])
+            ax_mv_avg.plot(event_num_avg, baseline_avg, color=colors[i], label=f'Epoch {epoch_num}')
+        ax_raw.set_xlabel('Event Number')
+        ax_raw.set_ylabel('Baseline')
+        # ax_raw.legend(loc='best')
+        fig_raw.tight_layout()
+        ax_mv_avg.set_xlabel('Event Number')
+        ax_mv_avg.set_ylabel('Baseline')
+        # ax_mv_avg.legend(loc='best')
+        fig_mv_avg.tight_layout()
+
+        plt.show()
+
     print('donzo')
+
 
 
 if __name__ == '__main__':

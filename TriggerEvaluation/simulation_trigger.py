@@ -300,6 +300,22 @@ def moving_average(x, y, n):
     return np.array(x_avg), np.array(y_avg)
 
 
+def moving_average_numpy(x, y, n):
+    """
+    Calculate the moving average of a waveform in both x and y with numpy
+    Args:
+        x:
+        y:
+        n:
+
+    Returns:
+
+    """
+    x_avg = np.convolve(x, np.ones(n), 'valid') / n
+    y_avg = np.convolve(y, np.ones(n), 'valid') / n
+    return x_avg, y_avg
+
+
 def integral(x, y, n):
     """
     Calculate the integral of a waveform in both x and y without numpy
