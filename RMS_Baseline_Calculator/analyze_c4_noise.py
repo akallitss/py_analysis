@@ -18,15 +18,16 @@ from TriggerEvaluation.simulation_trigger import moving_average_numpy
 
 def main():
     # base_path = 'C:/Users/Dylan/Desktop/picosec/'
-    base_path = '/home/dylan/Desktop/picosec/data/'
+    # base_path = '/home/dylan/Desktop/picosec/data/'
+    base_path = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/data/2022_October_h4/processedTrees/'
     file_name = 'Run224-Pool2_TESTBEAM_tree.root'
     file_path = base_path + file_name
     tree_name = 'RawDataTree'
     channel = 2
     var_names = ['epoch', f'amplC{channel}', 'eventNo']
     event_start = 0
-    # event_end = 10000
-    event_end = None
+    event_end = 5000
+    # event_end = None
     # Open ROOT file
     with uproot.open(file_path) as file:
         tree = file[tree_name]
