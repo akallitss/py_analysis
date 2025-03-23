@@ -434,8 +434,37 @@ def ion_tail_model(x, a, k, b, x_sigmoid, k_sigmoid):
     sigmoid = 1 / (1 + np.exp(-k_sigmoid * x_shift))
     return a * np.exp(-k * x_shift) * sigmoid + b
 
+def ion_tail_model_simple(x, p0,p1,p2,p3 ):
+    """ Sigmoid model of ion tail"""
+    ":param x: time points"
+    ":param p0: amplitude"
+    ":param p1: steepness"
+    ":param p2: offset"
+    ":param p3: baseline"
 
-def full_fit(x, a, x1, k1, c, x2, k2, a_ion, k_ion, x_sigmoid, k_sigmoid):
+    return p0 / (1 + np.exp(-p2 * (x - p1))) + p3
+
+
+# def full_fit(x, a, x1, k1, c, x2, k2, a_ion, k_ion, x_sigmoid, k_sigmoid):
+#     """
+#     Full fit of signal and ion tail
+#     :param x:
+#     :param a:
+#     :param x1:
+#     :param k1:
+#     :param c:
+#     :param x2:
+#     :param k2:
+#     :param a_ion:
+#     :param k_ion:
+#     :param x_sigmoid:
+#     :param k_sigmoid:
+#     :return:
+#     """
+#     # return fermi_dirac_sym(x, a, x1, k1, c, x2, k2) + ion_tail_model(x, a_ion, k_ion, c, x_sigmoid, k_sigmoid)
+#     # return a * (fermi_dirac_sym(x, 1, x1, k1, 0, x2, k2) + ion_tail_model(x, a_ion, k_ion, 0, x_sigmoid, k_sigmoid)) + c
+
+def full_fit(x, a, x1, k1, c, x2, k2, a_ion, k_ion, mid_point, baseline):
     """
     Full fit of signal and ion tail
     :param x:
@@ -452,8 +481,41 @@ def full_fit(x, a, x1, k1, c, x2, k2, a_ion, k_ion, x_sigmoid, k_sigmoid):
     :return:
     """
     # return fermi_dirac_sym(x, a, x1, k1, c, x2, k2) + ion_tail_model(x, a_ion, k_ion, c, x_sigmoid, k_sigmoid)
-    return a * (fermi_dirac_sym(x, 1, x1, k1, 0, x2, k2) + ion_tail_model(x, a_ion, k_ion, 0, x_sigmoid, k_sigmoid)) + c
+    # return a * (fermi_dirac_sym(x, 1, x1, k1, 0, x2, k2) + ion_tail_model(x, a_ion, k_ion, 0, x_sigmoid, k_sigmoid)) + c
+    return a * (fermi_dirac_sym(x, 1, x1, k1, 0, x2, k2) + ion_tail_model_simple(x, a_ion, k_ion, mid_point, baseline)) + c
 
+
+def full_fit2(x, a, x1, k1, c, x2, k2, a_ion, k_ion, mid_point, baseline, x_sigmoid, k_sigmoid):
+    """
+    Full fit of signal and ion tail
+    :param x:
+    :param a:
+    :param x1:
+    :param k1:
+    :param c:
+    :param x2:
+    :param k2:
+    :param a_ion:
+    :param k_ion:
+    :param x_sigmoid:
+    :param k_sigmoid:
+    :return:
+    """
+    # return fermi_dirac_sym(x, a, x1, k1, c, x2, k2) + ion_tail_model(x, a_ion, k_ion, c, x_sigmoid, k_sigmoid)
+    # return a * (fermi_dirac_sym(x, 1, x1, k1, 0, x2, k2) + ion_tail_model(x, a_ion, k_ion, 0, x_sigmoid, k_sigmoid)) + c
+    return sigmoid(x, x_sigmoid, k_sigmoid) * fermi_dirac_sym(x, a, x1, k1, c, x2, k2) + (1 - sigmoid(x, x_sigmoid, k_sigmoid)) * ion_tail_model_simple(x, a_ion, k_ion, mid_point, baseline)
+
+
+def sigmoid(x, x0, k):
+    """
+    Sigmoid function
+    :param x:
+    :param a:
+    :param x0:
+    :param k:
+    :return:
+    """
+    return 1 / (1 + np.exp(-k * (x - x0)))
 
 def plot_integral(x, y, x_int, y_int, n, threshold):
     """
