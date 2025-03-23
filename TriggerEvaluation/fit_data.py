@@ -85,7 +85,6 @@ def main():
 
     func = full_fit
 
-    p0 = list(params.values())
     p0 = list(params.values()) # initial guess
 
     x_sigmoid_range = [213, 600]
