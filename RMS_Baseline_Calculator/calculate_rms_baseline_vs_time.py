@@ -19,7 +19,8 @@ from TriggerEvaluation.simulation_trigger import moving_average_numpy
 
 def main():
     # base_path = 'C:/Users/Dylan/Desktop/picosec/'
-    base_path = '/home/dylan/Desktop/picosec/data/'
+    # base_path = '/home/dylan/Desktop/picosec/data/'
+    base_path = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/data/2022_October_h4/processedTrees/'
     file_name = 'Run224-Pool2_TESTBEAM_tree.root'
     file_path = base_path + file_name
     tree_name = 'RawDataTree'
