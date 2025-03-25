@@ -20,23 +20,30 @@ import matplotlib.pyplot as plt
 def main():
     # base_dir = '/home/akallits/Documents/PicoAnalysis/Saclay_Analysis/'  # Laptop ubuntu
     base_dir = '/eos/project-p/picosec/analysis/Saclay/'  # EOS Server
+    rerun = True  # If True, rerun runs even if found to be processed. Else only run unprocessed runs
     # test_script(base_dir)
-    process_runs(base_dir)
+    process_runs(base_dir, rerun)
     print('bonzo')
 
 
-def process_runs(base_dir):
+def process_runs(base_dir, rerun=False):
     """
     Process all runs in the logbook
     :param base_dir:
+    :param rerun:
     :return:
     """
 
-    test_beam_period_dir = '2024_June_h4/'
-    root_macro_name = 'MakeTreefromRawTreePicosecJune24.C+'
+    #test_beam_period_dir = '2024_June_h4/'
+    #root_macro_name = 'MakeTreefromRawTreePicosecJune24.C+'
+    test_beam_period_dir = '2023_April_h4/'
+    test_beam_period_code_dir = 'Apr23/'  # 'Aug23'
+    root_macro_name = 'MakeTreefromRawTreePicosecApril23.C++'
+   
     logbook_dir = f'{base_dir}data/{test_beam_period_dir}/'
     output_dir = f'{base_dir}data/{test_beam_period_dir}/processedTrees/'
-    logbook_name = 'OsciloscopeSetup_LogbookAll.txt'
+    #logbook_name = 'OsciloscopeSetup_LogbookAll.txt'
+    logbook_name = 'OsciloscopeSetup_LogbookAll_extra.txt'
     logbook_path = os.path.join(logbook_dir, logbook_name)
     log_path = f'{logbook_dir}MakeTreePicosecProcess.log'
     # logbook = pd.read_csv(logbook_path, sep='\t', header=0)
@@ -54,9 +61,12 @@ def process_runs(base_dir):
     for run_info in log_run_info_dict:
         if (int(run_info['RunNo']), int(run_info['PoolNo'])) not in processed_runs:
             print_log(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} not processed yet.', log_path)
-            process_run(run_info, base_dir, test_beam_period_dir, root_macro_name)  # Process run
+            process_run(run_info, base_dir, test_beam_period_dir, test_beam_period_code_dir, root_macro_name)  # Process run
         else:
             print_log(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} already processed.', log_path)
+            if rerun:
+                print_log(f'Run {run_info["RunNo"]}, Pool {run_info["PoolNo"]} reprocessing.', log_path)
+                process_run(run_info, base_dir, test_beam_period_dir, test_beam_period_code_dir, root_macro_name)  # Process run anyway
 
     print_log(f'Processed runs: {processed_runs}', log_path)
     print_log(f'Crashed runs: {crashed_runs}', log_path)
@@ -144,12 +154,13 @@ def test_script(base_dir):
     process_run({'RunNo': 163, 'PoolNo': 3}, base_dir)
 
 
-def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name, log_path=None):
+def process_run(run_info, base_dir, test_beam_period_dir, test_beam_period_code_dir, root_macro_name, log_path=None):
     """
     Process a run
     :param run_info:
     :param base_dir:
     :param test_beam_period_dir:
+    :param test_beam_period_code_dir:
     :param root_macro_name:
     :param log_path:
     :return:
@@ -163,7 +174,7 @@ def process_run(run_info, base_dir, test_beam_period_dir, root_macro_name, log_p
         for key in run_info:
             osc_file.write(f'{run_info[key]}\t')
 
-    script_name = f'code/{root_macro_name}'
+    script_name = f'code/{test_beam_period_code_dir}{root_macro_name}'
     print_log(f'Processing run {run_info["RunNo"]}, pool {run_info["PoolNo"]}', log_path)
     # Get run and pool number
     run_number = run_info['RunNo']
