@@ -12,6 +12,8 @@ Updated version copied from UCLA_Nuclear on 3/16/21
 
 import math
 
+import numpy as np
+
 
 class Measure:
     def __init__(self, val=0, err=0):
@@ -41,6 +43,9 @@ class Measure:
     @err.deleter
     def err(self):
         del self._err
+
+    def str_latex(self):
+        return str(self).replace(' ± ', ' \\pm ')
 
     def __neg__(self):
         return Measure(-self.val, self.err)
@@ -197,7 +202,20 @@ class Measure:
         return self
 
     def __str__(self):
-        dec = err_dec(self.err)
+        dec = err_dec(self.err) if self.err != 0 else err_dec(self.val, 5)
+        f_or_e = float_or_exp(self.val, dec)
+        if f_or_e == 'e' and np.isfinite(self.err):
+            print(f'val: {self.val}, err: {self.err}')
+            try:
+                precision = 1 + math.floor(math.log10(abs(self.val / self.err))) if self.err != 0 else 2
+            except ValueError:
+                precision = 2
+            precision = max(precision, 2)
+            val, err = match_exponents(self.val, self.err, precision)
+            e_str = f'{val} ± {err}'
+            f_str = f'{self.val:.{dec}f} ± {self.err:.{dec}f}'
+            if len(e_str) < len(f_str):
+                return e_str
         return f'{self.val:.{dec}f} ± {self.err:.{dec}f}'
 
     def __repr__(self):
@@ -208,10 +226,47 @@ def err_dec(x, prec=2):
     if math.isinf(x) or math.isnan(x):
         return 0
     dec = 0
-    while int(x) < 10**(prec - 1) and x != 0:
+    while int(abs(x)) < 10**(prec - 1) and x != 0:
         x *= 10
         dec += 1
     return dec
+
+
+def float_or_exp(x, dec, len_thresh=7):
+    """
+    Decide whether to return a float or scientific notation string based on the value and decimal precision.
+    :param x: Value to decide on.
+    :param dec: Number of decimal places to round to.
+    :param len_thresh: Threshold for switching to scientific notation.
+    :return:
+    """
+    if len(f'{x:.{dec}f}') > len_thresh:
+        return 'e'
+    else:
+        return 'f'
+
+
+def get_exponent(value):
+    # Get the exponent of the number in scientific notation
+    if value == 0:
+        return 0
+    exponent = int(math.floor(math.log10(abs(value))))
+    return exponent
+
+
+def match_exponents(value1, value2, precision=2):
+    # Get the exponent of the first value
+    exponent = get_exponent(value1)
+
+    # Adjust both values to have the same exponent
+    adjusted_value1 = value1 / (10 ** exponent)
+    adjusted_value2 = value2 / (10 ** exponent)
+
+    # Format both values with the same exponent
+    formatted_str1 = f"{adjusted_value1:.{precision}f}e{exponent:+}"
+    formatted_str2 = f"{adjusted_value2:.{precision}f}e{exponent:+}"
+
+    return formatted_str1, formatted_str2
 
 
 def log(x, base=math.e):
