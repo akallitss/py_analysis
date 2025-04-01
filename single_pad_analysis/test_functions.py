@@ -404,7 +404,7 @@ def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False,
     xs = df[f'hitX_{channel}']
     ys = df[f'hitY_{channel}']
 
-    resolutions, means = [], []
+    resolutions, means, events = [], [], []
     for x, y in xy_pairs:
         print(f'Circle Scan: ({x}, {y})')
         rs = np.sqrt((xs - x) ** 2 + (ys - y) ** 2)
@@ -419,6 +419,7 @@ def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False,
         fit_meases = fit_time_diffs(time_diffs_bin, n_bins=100, min_events=min_events)
         resolutions.append(fit_meases[2])
         means.append(fit_meases[1])
+        events.append(n_events)
 
         if plot:
             fig, ax = plt.subplots()
@@ -434,10 +435,12 @@ def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False,
                         bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow'))
             fig.tight_layout()
 
-    return resolutions, means
+    return resolutions, means, events
 
 
-def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys):
+def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, radius=None):
+    radius_str = f' radius={radius:.1f} mm' if radius is not None else ''
+
     scan_resolution_vals = [res.val for res in scan_resolutions]
     scan_mean_val = [mean.val for mean in scan_means]
 
@@ -454,7 +457,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys):
     plt.colorbar(c, label="Timing Resolution [ps]")
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
-    ax.set_title("Timing Resolution Heatmap")
+    ax.set_title(f"Timing Resolution Heatmap{radius_str}")
 
     # Create the contour plot
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -467,7 +470,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys):
     # Labels and title
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
-    ax.set_title("Timing Resolution Contour Plot")
+    ax.set_title(f"Timing Resolution Contour Plot{radius_str}")
 
     fig, ax = plt.subplots(figsize=(8, 6))
     c = ax.imshow(scan_means_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
@@ -475,7 +478,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys):
     plt.colorbar(c, label="Mean Time Difference [ps]")
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
-    ax.set_title("Time Difference Heatmap")
+    ax.set_title(f"Time Difference Heatmap{radius_str}")
 
     # Create the contour plot
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -488,7 +491,18 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys):
     # Labels and title
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
-    ax.set_title("Time Difference Contour Plot")
+    ax.set_title(f"Time Difference Contour Plot{radius_str}")
+
+    if scan_events is not None:
+        scan_events_2d = np.array(scan_events).reshape(len(ys), len(xs))
+        masked_scan_events_2d = np.ma.masked_equal(scan_events_2d, 0)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        c = ax.imshow(masked_scan_events_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower",
+                      aspect="auto", cmap="jet")
+        plt.colorbar(c, label="Number of Events")
+        ax.set_xlabel("X Position [mm]")
+        ax.set_ylabel("Y Position [mm]")
+        ax.set_title(f"Event Statistics Heatmap{radius_str}")
 
 
 def fit_time_diffs(time_diffs, n_bins=100, min_events=100):
