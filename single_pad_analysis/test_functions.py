@@ -302,6 +302,14 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
             bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
         )
 
+        axs[1].annotate(
+            parameter_string,
+            xy=(0.5, 0.2), xycoords='axes fraction',
+            ha='center', va='bottom',
+            bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
+        )
+
+
         axs[0].axvline(popt_x_charge[0], color='salmon', ls='-', alpha=0.5)
         axs[1].axvline(popt_y_charge[0], color='salmon', ls='-', alpha=0.5)
 
@@ -330,6 +338,8 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
         axs[0].set_xlabel("x [mm]")
         axs[0].set_ylabel("y [mm]")
         axs[0].scatter(popt_x_charge[0], popt_y_charge[0], marker='x', c='k')
+        axs[0].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
+        axs[0].set_ylim(y_min - extend_range * y_range, y_max + extend_range * y_range)
         fig.colorbar(im1, ax=axs[0])
 
         # Plot xytrksW
@@ -352,7 +362,37 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
 
     return meas_x_charge[0], meas_y_charge[0]
 
+def time_walk_func_power_law(x, a, b, c):
+    return c + a * x ** b
 
+def time_walk_double_exponential(x, a1, l1, a2, l2, c):
+    return a1 * np.exp(l1 * x) + a2 * np.exp(l2 * x) + c
+
+def time_walk_linear(x, a, b):
+    return a * x + b
+
+def double_expo(x, *p):
+    return np.exp(p[0]*x+p[1])+np.exp(p[2]*x+p[3])+p[4]
+
+def gaus(x, a, mu, sigma):
+    return a * np.exp(-(x-mu)**2/(2*sigma**2))
+
+def get_time_walk_corection(df, c4_pad_center_measures, time_walk_func, mm_cut=(0,100), mcp_cut(0,2), time_col='tfit20_nb', plot=True):
+    """
+    Get time walk correction for a given channel
+    Parameters:
+        df (pd.DataFrame): DataFrame containing the data
+        c4_pad_center_measures (tuple): Tuple of Measure objects representing the x and y pad center estimates
+        time_walk_func (function): Function to fit the time walk correction
+        mm_cut (tuple): Tuple of min and max values for the x and y coordinates of MM in mm
+        mcp_cut (tuple): Tuple of min and max values for the x and y coordinates of MCP in mm
+        time_col (string): Name of the time column to be used for the caliblation curve
+        plot (bool): Whether to plot the results
+    Returns:
+        tuple(Measure, Measure): Tuple of Measure objects representing the x and y pad center estimates
+    """
+
+    pass
 def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, plot=False):
     time_diffs = df[f'{time_col}_{channel}']
     if ns_to_ps:
