@@ -353,4 +353,128 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
     return meas_x_charge[0], meas_y_charge[0]
 
 
+def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, plot=False):
+    time_diffs = df[f'{time_col}_{channel}']
+    if ns_to_ps:
+        time_diffs = time_diffs * 1000
+    if time_diff_lims is not None:
+        if ns_to_ps:
+            time_diff_lims = np.array(time_diff_lims) * 1000
+        time_diffs[(time_diffs < time_diff_lims[0]) | (time_diffs > time_diff_lims[1])] = np.nan
+    xs = df[f'hitX_{channel}']
+    ys = df[f'hitY_{channel}']
+
+    resolutions, means = [], []
+    for x, y in xy_pairs:
+        print(f'Circle Scan: ({x}, {y})')
+        rs = np.sqrt((xs - x) ** 2 + (ys - y) ** 2)
+        mask = rs < radius
+        time_diffs_bin = time_diffs[mask]
+        time_diffs_bin = np.array(time_diffs_bin[~np.isnan(time_diffs_bin)])
+        n_events = time_diffs_bin.size
+
+        hist_bin, bin_edges = np.histogram(time_diffs_bin, bins=100)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        fit_meases = fit_time_diffs(time_diffs_bin, n_bins=100, min_events=min_events)
+        resolutions.append(fit_meases[2])
+        means.append(fit_meases[1])
+
+        if plot:
+            fig, ax = plt.subplots()
+            ax.bar(bin_centers, hist_bin, width=bin_edges[1] - bin_edges[0], align='center', alpha=0.5)
+            x_plt = np.linspace(bin_centers[0], bin_centers[-1], 200)
+            ax.plot(x_plt, gaus(x_plt, *[par.val for par in fit_meases]), color='red')
+            ax.set_title(f'Circle Scan: ({x}, {y})')
+            ax.set_xlabel('Time Difference')
+            ax.set_ylabel('Counts')
+            time_unit = 'ps' if ns_to_ps else 'ns'
+            fit_str = f'Fit:\nEvents={n_events}\nA={fit_meases[0]}\nμ={fit_meases[1]} {time_unit}\nσ={fit_meases[2]} {time_unit}'
+            ax.annotate(fit_str, xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top',
+                        bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow'))
+            fig.tight_layout()
+
+    return resolutions, means
+
+
+def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys):
+    scan_resolution_vals = [res.val for res in scan_resolutions]
+    scan_mean_val = [mean.val for mean in scan_means]
+
+    x_mesh, y_mesh = np.meshgrid(xs, ys)
+
+    # Convert to 2D arrays
+    scan_resolutions_2d = np.array(scan_resolution_vals).reshape(len(ys), len(xs))
+    scan_means_2d = np.array(scan_mean_val).reshape(len(ys), len(xs))
+
+    # Plot results
+    fig, ax = plt.subplots(figsize=(8, 6))
+    c = ax.imshow(scan_resolutions_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
+                  cmap="jet_r")
+    plt.colorbar(c, label="Timing Resolution [ps]")
+    ax.set_xlabel("X Position [mm]")
+    ax.set_ylabel("Y Position [mm]")
+    ax.set_title("Timing Resolution Heatmap")
+
+    # Create the contour plot
+    fig, ax = plt.subplots(figsize=(8, 6))
+    contour = ax.contourf(x_mesh, y_mesh, scan_resolutions_2d, levels=50, cmap="jet_r")
+
+    # Add color bar
+    cbar = plt.colorbar(contour)
+    cbar.set_label("Timing Resolution [ps]")
+
+    # Labels and title
+    ax.set_xlabel("X Position [mm]")
+    ax.set_ylabel("Y Position [mm]")
+    ax.set_title("Timing Resolution Contour Plot")
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    c = ax.imshow(scan_means_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
+                  cmap="jet_r")
+    plt.colorbar(c, label="Mean Time Difference [ps]")
+    ax.set_xlabel("X Position [mm]")
+    ax.set_ylabel("Y Position [mm]")
+    ax.set_title("Time Difference Heatmap")
+
+    # Create the contour plot
+    fig, ax = plt.subplots(figsize=(8, 6))
+    contour = ax.contourf(x_mesh, y_mesh, scan_means_2d, levels=50, cmap="jet_r")
+
+    # Add color bar
+    cbar = plt.colorbar(contour)
+    cbar.set_label("Time Difference [ps]")
+
+    # Labels and title
+    ax.set_xlabel("X Position [mm]")
+    ax.set_ylabel("Y Position [mm]")
+    ax.set_title("Time Difference Contour Plot")
+
+
+def fit_time_diffs(time_diffs, n_bins=100, min_events=100):
+    time_diffs = np.array(time_diffs)
+    time_diffs = time_diffs[~np.isnan(time_diffs)]
+
+    meases = [Measure(np.nan, np.nan) for _ in range(3)]
+
+    n_events = time_diffs.size
+    if n_events < min_events:
+        return meases
+
+    hist, bin_edges = np.histogram(time_diffs, bins=n_bins)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    try:
+        p0 = [np.max(hist), np.mean(time_diffs), np.std(time_diffs)]
+        popt, pcov = cf(gaus, bin_centers, hist, p0=p0)
+        popt[2] = abs(popt[2])  # Ensure sigma is positive
+        perr = np.sqrt(np.diag(pcov))
+        meases = [Measure(val, err) for val, err in zip(popt, perr)]
+        return meases
+    except RuntimeError:
+        return meases
+
+def gaus(x, a, mu, sigma):
+    return a * np.exp(-(x-mu)**2/(2*sigma**2))
+
 # print('END OF SCRIPT')
