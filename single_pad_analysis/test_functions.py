@@ -2,6 +2,7 @@ import pandas as pd
 import uproot
 import numpy as np
 import matplotlib.pyplot as plt
+from fontTools.misc.cython import returns
 
 from scipy.optimize import curve_fit as cf
 from TriggerEvaluation.Measure import Measure
@@ -133,7 +134,7 @@ def poly_even_fit(x, x0, a, b, c):
 
 
 def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin=20, min_avg_charge_per_2d_bin=4,
-                   charge_col_name='totcharge_filtered', charge_cut_low=0, charge_cut_high=100):
+                   charge_col_name='totcharge_filtered', charge_cut_low=0, charge_cut_high=100, plot_only=False):
     """
     Estimate pad center from average signal charge distribution
     Parameters:
@@ -243,28 +244,29 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
     avg_x_charge = sum_x_charge / np.where(sum_x_tracks > 0, sum_x_tracks, 1)
     avg_y_charge = sum_y_charge / np.where(sum_y_tracks > 0, sum_y_tracks, 1)
 
-    avg_x_charge_err = np.abs(avg_x_charge) / np.sqrt(np.where(sum_x_tracks > 0, sum_x_tracks, 1))
-    avg_y_charge_err = np.abs(avg_y_charge) / np.sqrt(np.where(sum_y_tracks > 0, sum_y_tracks, 1))
+    if not plot_only:
+        avg_x_charge_err = np.abs(avg_x_charge) / np.sqrt(np.where(sum_x_tracks > 0, sum_x_tracks, 1))
+        avg_y_charge_err = np.abs(avg_y_charge) / np.sqrt(np.where(sum_y_tracks > 0, sum_y_tracks, 1))
 
-    x_fit_mask = (bin_centers_x > x_min) & (bin_centers_x < x_max)
-    avg_x_charge_x0_guess = np.nanmedian(xs)
-    avg_x_charge_max = np.max(avg_x_charge[x_fit_mask])
-    avg_x_charge_curvature_guess = avg_x_charge_max / (x_range / 2) ** 2
-    p0_x = [avg_x_charge_x0_guess, avg_x_charge_max, -avg_x_charge_curvature_guess, 0]
-    popt_x_charge, pcov_x_charge = cf(poly_even_fit, bin_centers_x[x_fit_mask], avg_x_charge[x_fit_mask], p0=p0_x,
-                                      sigma=avg_x_charge_err[x_fit_mask], absolute_sigma=True)
-    perr_x_charge = np.sqrt(np.diag(pcov_x_charge))
-    meas_x_charge = [Measure(val, err) for val, err in zip(popt_x_charge, perr_x_charge)]
+        x_fit_mask = (bin_centers_x > x_min) & (bin_centers_x < x_max)
+        avg_x_charge_x0_guess = np.nanmedian(xs)
+        avg_x_charge_max = np.max(avg_x_charge[x_fit_mask])
+        avg_x_charge_curvature_guess = avg_x_charge_max / (x_range / 2) ** 2
+        p0_x = [avg_x_charge_x0_guess, avg_x_charge_max, -avg_x_charge_curvature_guess, 0]
+        popt_x_charge, pcov_x_charge = cf(poly_even_fit, bin_centers_x[x_fit_mask], avg_x_charge[x_fit_mask], p0=p0_x,
+                                          sigma=avg_x_charge_err[x_fit_mask], absolute_sigma=True)
+        perr_x_charge = np.sqrt(np.diag(pcov_x_charge))
+        meas_x_charge = [Measure(val, err) for val, err in zip(popt_x_charge, perr_x_charge)]
 
-    y_fit_mask = (bin_centers_y > y_min) & (bin_centers_y < y_max)
-    avg_y_charge_y0_guess = np.nanmedian(ys)
-    avg_y_charge_max = np.max(avg_y_charge[y_fit_mask])
-    avg_y_charge_curvature_guess = avg_y_charge_max / (y_range / 2) ** 2
-    p0_y = [avg_y_charge_y0_guess, avg_y_charge_max, -avg_y_charge_curvature_guess, 0]
-    popt_y_charge, pcov_y_charge = cf(poly_even_fit, bin_centers_y[y_fit_mask], avg_y_charge[y_fit_mask], p0=p0_y,
-                                      sigma=avg_y_charge_err[y_fit_mask], absolute_sigma=True)
-    perr_y_charge = np.sqrt(np.diag(pcov_y_charge))
-    meas_y_charge = [Measure(val, err) for val, err in zip(popt_y_charge, perr_y_charge)]
+        y_fit_mask = (bin_centers_y > y_min) & (bin_centers_y < y_max)
+        avg_y_charge_y0_guess = np.nanmedian(ys)
+        avg_y_charge_max = np.max(avg_y_charge[y_fit_mask])
+        avg_y_charge_curvature_guess = avg_y_charge_max / (y_range / 2) ** 2
+        p0_y = [avg_y_charge_y0_guess, avg_y_charge_max, -avg_y_charge_curvature_guess, 0]
+        popt_y_charge, pcov_y_charge = cf(poly_even_fit, bin_centers_y[y_fit_mask], avg_y_charge[y_fit_mask], p0=p0_y,
+                                          sigma=avg_y_charge_err[y_fit_mask], absolute_sigma=True)
+        perr_y_charge = np.sqrt(np.diag(pcov_y_charge))
+        meas_y_charge = [Measure(val, err) for val, err in zip(popt_y_charge, perr_y_charge)]
 
     if plot:  # Plot 1D of xs and ys weighted by charge (formatted like above)
         fig, axs = plt.subplots(ncols=2, sharey='all', figsize=(12, 6))
@@ -272,28 +274,32 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
         axs[0].step(bin_centers_x, avg_x_charge, where='mid', label="Avg Charge X", c='k', alpha=0.5)
         axs[1].step(bin_centers_y, avg_y_charge, where='mid', label="Avg Charge Y", c='k', alpha=0.5)
 
-        axs[0].errorbar(bin_centers_x[x_fit_mask], avg_x_charge[x_fit_mask], yerr=avg_x_charge_err[x_fit_mask], ls='none',
-                        c='k', marker='o', ms=5, capsize=5, elinewidth=0.5)
-        axs[1].errorbar(bin_centers_y[y_fit_mask], avg_y_charge[y_fit_mask], yerr=avg_y_charge_err[y_fit_mask], ls='none',
-                        c='k', marker='o', ms=5, capsize=5, elinewidth=0.5)
+        if not plot_only:
+            axs[0].errorbar(bin_centers_x[x_fit_mask], avg_x_charge[x_fit_mask], yerr=avg_x_charge_err[x_fit_mask], ls='none',
+                            c='k', marker='o', ms=5, capsize=5, elinewidth=0.5)
+            axs[1].errorbar(bin_centers_y[y_fit_mask], avg_y_charge[y_fit_mask], yerr=avg_y_charge_err[y_fit_mask], ls='none',
+                            c='k', marker='o', ms=5, capsize=5, elinewidth=0.5)
 
-        axs[0].plot(bin_centers_x, poly_even_fit(bin_centers_x, *p0_x), color='gray', ls='-', alpha=0.1)
-        axs[0].plot(bin_centers_x, poly_even_fit(bin_centers_x, *popt_x_charge), color='red', ls='--')
-        axs[1].plot(bin_centers_y, poly_even_fit(bin_centers_y, *p0_y), color='gray', ls='-', alpha=0.1)
-        axs[1].plot(bin_centers_y, poly_even_fit(bin_centers_y, *popt_y_charge), color='red', ls='--')
+            axs[0].plot(bin_centers_x, poly_even_fit(bin_centers_x, *p0_x), color='gray', ls='-', alpha=0.1)
+            axs[0].plot(bin_centers_x, poly_even_fit(bin_centers_x, *popt_x_charge), color='red', ls='--')
+            axs[1].plot(bin_centers_y, poly_even_fit(bin_centers_y, *p0_y), color='gray', ls='-', alpha=0.1)
+            axs[1].plot(bin_centers_y, poly_even_fit(bin_centers_y, *popt_y_charge), color='red', ls='--')
 
-        axs[0].annotate(
-            f'Pad X-Center: {meas_x_charge[0]}',
-            xy=(0.5, 0.05), xycoords='axes fraction',
-            ha='center', va='bottom',
-            bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-        )
-        axs[1].annotate(
-            f'Pad Y-Center: {meas_y_charge[0]}',
-            xy=(0.5, 0.05), xycoords='axes fraction',
-            ha='center', va='bottom',
-            bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-        )
+            axs[0].annotate(
+                f'Pad X-Center: {meas_x_charge[0]}',
+                xy=(0.5, 0.05), xycoords='axes fraction',
+                ha='center', va='bottom',
+                bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
+            )
+            axs[1].annotate(
+                f'Pad Y-Center: {meas_y_charge[0]}',
+                xy=(0.5, 0.05), xycoords='axes fraction',
+                ha='center', va='bottom',
+                bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
+            )
+
+            axs[0].axvline(popt_x_charge[0], color='salmon', ls='-', alpha=0.5)
+            axs[1].axvline(popt_y_charge[0], color='salmon', ls='-', alpha=0.5)
 
         axs[0].annotate(
             parameter_string,
@@ -308,10 +314,6 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
             ha='center', va='bottom',
             bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
         )
-
-
-        axs[0].axvline(popt_x_charge[0], color='salmon', ls='-', alpha=0.5)
-        axs[1].axvline(popt_y_charge[0], color='salmon', ls='-', alpha=0.5)
 
         axs[0].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
         axs[1].set_xlim(y_min - extend_range * y_range, y_max + extend_range * y_range)
@@ -337,7 +339,6 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
         axs[0].set_title("Track Multiplicity")
         axs[0].set_xlabel("x [mm]")
         axs[0].set_ylabel("y [mm]")
-        axs[0].scatter(popt_x_charge[0], popt_y_charge[0], marker='x', c='k')
         axs[0].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
         axs[0].set_ylim(y_min - extend_range * y_range, y_max + extend_range * y_range)
         fig.colorbar(im1, ax=axs[0])
@@ -349,18 +350,24 @@ def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin
         axs[1].set_title("Average Charge per Track")
         axs[1].set_xlabel("x [mm]")
         axs[1].set_ylabel("y [mm]")
-        axs[1].scatter(popt_x_charge[0], popt_y_charge[0], marker='x', c='k')
-        axs[1].annotate(
-            f'Pad Center: ({meas_x_charge[0]}, {meas_y_charge[0]})',
-            xy=(0.05, 0.95), xycoords='axes fraction',
-            ha='left', va='top',
-            bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-        )
+        if not plot_only:
+            axs[0].scatter(popt_x_charge[0], popt_y_charge[0], marker='x', c='k')
+            axs[1].scatter(popt_x_charge[0], popt_y_charge[0], marker='x', c='k')
+            axs[1].annotate(
+                f'Pad Center: ({meas_x_charge[0]}, {meas_y_charge[0]})',
+                xy=(0.05, 0.95), xycoords='axes fraction',
+                ha='left', va='top',
+                bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
+            )
         axs[1].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
         axs[1].set_ylim(y_min - extend_range * y_range, y_max + extend_range * y_range)
         fig.colorbar(im2, ax=axs[1])
 
-    return meas_x_charge[0], meas_y_charge[0]
+    if plot_only:
+        return None, None
+    else:
+        return meas_x_charge[0], meas_y_charge[0]
+
 
 def time_walk_func_power_law(x, a, b, c):
     return c + a * x ** b
@@ -377,32 +384,147 @@ def double_expo(x, *p):
 def gaus(x, a, mu, sigma):
     return a * np.exp(-(x-mu)**2/(2*sigma**2))
 
-def get_time_walk_corection(df, c4_pad_center_measures, time_walk_func, mm_cut=(0,100), mcp_cut(0,2), time_col='tfit20_nb', plot=True):
+
+def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, plot=True):
     """
     Get time walk correction for a given channel
     Parameters:
-        df (pd.DataFrame): DataFrame containing the data
-        c4_pad_center_measures (tuple): Tuple of Measure objects representing the x and y pad center estimates
-        time_walk_func (function): Function to fit the time walk correction
-        mm_cut (tuple): Tuple of min and max values for the x and y coordinates of MM in mm
-        mcp_cut (tuple): Tuple of min and max values for the x and y coordinates of MCP in mm
-        time_col (string): Name of the time column to be used for the caliblation curve
+        time_diff (list): The time differences between micromegas and mcp
+        charges (list): List of micromegas charges
+        time_walk_func (function): The time walk function to fit
+        time_walk_p0 (list): Initial parameters for the time walk function
         plot (bool): Whether to plot the results
     Returns:
         tuple(Measure, Measure): Tuple of Measure objects representing the x and y pad center estimates
     """
+    time_diff_na_filter = ~pd.isna(time_diff) & ~pd.isna(charges)
 
-    pass
-def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, plot=False):
-    time_diffs = df[f'{time_col}_{channel}']
+    time_diff = np.array(time_diff[time_diff_na_filter])
+    charges = np.array(charges[time_diff_na_filter])
+
+    sorted_indices = np.argsort(charges)
+    charges, time_diff = charges[sorted_indices], time_diff[sorted_indices]
+
+    avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned(time_diff, charges)
+
+    popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
+    pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
+
+    popt_dyn_bin, pcov_dyn_bin = cf(time_walk_func, avg_charges, med_time_diffs, sigma=std_err_time_diffs,
+                                    absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
+    pmeas_dyn_bin = [Measure(val, err) for val, err in zip(popt_dyn_bin, np.sqrt(np.diag(pcov_dyn_bin)))]
+
+    popt_gaus_fits, pcov_gaus_fits = cf(time_walk_func, avg_charges, gaus_means, sigma=gaus_mean_errs,
+                                        absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
+    pmeas_gaus_fit = [Measure(val, err) for val, err in zip(popt_gaus_fits, np.sqrt(np.diag(pcov_gaus_fits)))]
+
+    if plot:
+        fig, ax = plt.subplots(figsize=(8, 5))
+        binning_t20_diff = np.arange(0, 15, 0.1)
+        ax.hist(time_diff, bins=binning_t20_diff)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(charges, time_walk_func(charges, *time_walk_p0), color='gray', alpha=0.2)
+        ax.plot(charges, time_walk_func(charges, *popt_indiv), color='red', ls='--')
+        ax.scatter(charges, time_diff, alpha=0.5)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.errorbar(avg_charges, med_time_diffs, yerr=std_err_time_diffs, fmt='.', color='black',
+                    label='Average charges')
+        ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), ls='--', color='red', label='Dynamic bin')
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.errorbar(avg_charges, gaus_means, yerr=gaus_mean_errs, fmt='.', color='black', label='Average charges')
+        ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), ls='--', color='red', label='Dynamic bin')
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.scatter(charges, time_diff, alpha=0.2)
+        ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), color='red', ls='--', label='Median of Bin Fit')
+        ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), color='green', ls='--', label='Gaus Fit of Bin Fit')
+        ax.plot(charges, time_walk_func(charges, *popt_indiv), color='blue', ls='--', label='Individual Point Fit')
+        ax.legend()
+
+    return pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit
+
+
+
+def get_time_walk_binned(time_diff, charges, n_bins=100, plot=False):
+    n_event_bins = int(len(charges) / n_bins)
+    print('n_event_bins:', n_event_bins)
+    # Split numpy array into
+    n_gaus_bins = 10
+    bin_start = 0
+    plot_individual_bin_gaus_fit = False
+    avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = [], [], [], [], []
+    while bin_start < len(charges) - 1:
+        bin_end = bin_start + n_event_bins
+        if bin_end > len(charges):
+            bin_end = len(charges) - 1
+            print(f'{bin_end - bin_start} points in the last bin')
+        bin_charges = charges[bin_start:bin_end]
+        bin_time_diffs = time_diff[bin_start:bin_end]
+        avg_charges.append(np.mean(bin_charges))
+        med_time_diffs.append(np.median(bin_time_diffs))
+        std_err = np.std(bin_time_diffs) / np.sqrt(len(bin_time_diffs)) if len(bin_time_diffs) > 0 else np.nan
+        std_err = std_err if std_err > 0 else 1
+        std_err_time_diffs.append(std_err)
+
+        bin_time_diff_hist, bin_time_diff_charge_bin_edges = np.histogram(bin_time_diffs, bins=n_gaus_bins)
+        bin_time_diff_charge_bin_centers = (bin_time_diff_charge_bin_edges[1:] + bin_time_diff_charge_bin_edges[
+                                                                                 :-1]) / 2
+        p0_gaus_bin = [np.max(bin_time_diff_hist), np.mean(bin_time_diffs), np.std(bin_time_diffs)]
+        try:
+            popt_gaus_bin, pcov_gaus_bin = cf(gaus, bin_time_diff_charge_bin_centers, bin_time_diff_hist,
+                                              p0=p0_gaus_bin, maxfev=10000)
+            perr_gaus_bin = np.sqrt(np.diag(pcov_gaus_bin))
+
+            if plot_individual_bin_gaus_fit:
+                fig, ax = plt.subplots(figsize=(8, 5))
+                bin_time_diff_charg_bin_widths = np.diff(bin_time_diff_charge_bin_edges)
+                ax.bar(bin_time_diff_charge_bin_centers, bin_time_diff_hist, width=bin_time_diff_charg_bin_widths,
+                       color='black')
+                x_plot = np.linspace(bin_time_diff_charge_bin_edges[0], bin_time_diff_charge_bin_edges[-1], 200)
+                ax.plot(x_plot, gaus(x_plot, *p0_gaus_bin), color='gray', alpha=0.2)
+                ax.plot(x_plot, gaus(x_plot, *popt_gaus_bin), color='red')
+                ax.set_title(f'Fit from {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
+
+            gaus_means.append(popt_gaus_bin[1])
+            gaus_mean_errs.append(perr_gaus_bin[1])
+
+        except RuntimeError:
+            print(f'gaus_bin_hist failed for bin {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
+            gaus_means.append(p0_gaus_bin[1])
+            gaus_mean_errs.append(p0_gaus_bin[1])
+
+        bin_start = bin_end
+
+    return avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs
+
+def make_percentile_cuts(data, percentile_cuts=(None,None)):
+    if len(data) == 0:
+        return data
+
+    if percentile_cuts[0] is not None and percentile_cuts[1] is not None:
+        low_percentile = np.percentile(data, percentile_cuts[0])
+        high_percentile = np.percentile(data, percentile_cuts[1])
+        data = data[(data > low_percentile) & (data < high_percentile)]
+    elif percentile_cuts[0] is not None:
+        low_percentile = np.percentile(data, percentile_cuts[0])
+        data = data[data > low_percentile]
+    elif percentile_cuts[1] is not None:
+        high_percentile = np.percentile(data, percentile_cuts[1])
+        data = data[data < high_percentile]
+
+    return data
+
+
+def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, percentile_cuts=(None, None), plot=False):
     if ns_to_ps:
         time_diffs = time_diffs * 1000
     if time_diff_lims is not None:
         if ns_to_ps:
             time_diff_lims = np.array(time_diff_lims) * 1000
         time_diffs[(time_diffs < time_diff_lims[0]) | (time_diffs > time_diff_lims[1])] = np.nan
-    xs = df[f'hitX_{channel}']
-    ys = df[f'hitY_{channel}']
 
     resolutions, means, events = [], [], []
     for x, y in xy_pairs:
@@ -411,6 +533,9 @@ def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False,
         mask = rs < radius
         time_diffs_bin = time_diffs[mask]
         time_diffs_bin = np.array(time_diffs_bin[~np.isnan(time_diffs_bin)])
+
+        time_diffs_bin = make_percentile_cuts(time_diffs_bin, percentile_cuts)
+
         n_events = time_diffs_bin.size
 
         hist_bin, bin_edges = np.histogram(time_diffs_bin, bins=100)
@@ -438,6 +563,66 @@ def get_circle_scan(df, xy_pairs, channel, time_col='time_diff', ns_to_ps=False,
     return resolutions, means, events
 
 
+def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), plot=False):
+
+    if plot:
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.scatter(rs, time_diff_cor, alpha=0.2)
+        for r_bin_edge in rings:
+            ax.axvline(r_bin_edge, color='red')
+            ax.set_xlim(0, 10)
+            ax.set_ylim(-2, 2)
+
+    time_diff_binning = 100
+    r_bin_centers, time_resolutions, mean_sats = [], [], []
+    for r_bin_edge in rings:
+        r_bin_upper_edge = r_bin_edge + ring_bin_width
+        r_bin_filter = (rs > r_bin_edge) & (rs <= r_bin_upper_edge)
+        time_diffs_r_bin = time_diff_cor[r_bin_filter]
+
+        time_diffs_r_bin = make_percentile_cuts(time_diffs_r_bin, percentile_cuts)
+
+        time_hist, bin_edges = np.histogram(time_diffs_r_bin, bins=time_diff_binning)
+        time_diff_bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        fit_meases = fit_time_diffs(time_diffs_r_bin, n_bins=time_diff_binning, min_events=100)
+        mean_sats.append(fit_meases[1]*1e3)
+        time_resolutions.append(fit_meases[2] * 1e3)
+        r_bin_centers.append((r_bin_edge + r_bin_upper_edge) / 2)
+
+        if plot:
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
+                   label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
+            fit_str = rf'$A = {fit_meases[0]}$' + '\n' + rf'$\mu = {fit_meases[1]}$' + '\n' + rf'$\sigma = {fit_meases[2]}$'
+            ax.plot(time_diff_bin_centers, gaus(time_diff_bin_centers, *[par.val for par in fit_meases]), color='red', label='Fit')
+            ax.annotate(
+            fit_str,
+            xy=(0.1, 0.9), xycoords='axes fraction',
+            ha='left', va='top',
+            bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
+            )
+            ax.legend()
+    if plot:
+        fig, ax = plt.subplots(figsize=(8, 5))
+        r_bin_width = rings[1] - rings[0]
+        ax.errorbar(r_bin_centers, [x.val for x in time_resolutions], yerr=[x.err for x in time_resolutions],
+                    xerr=r_bin_width / 2, marker='o', color='black', ls='none')
+        ax.set_xlabel('Radial Distance from Pad Center [mm]')
+        ax.set_ylabel('Time Resolution [ps]')
+        ax.set_ylim(bottom=0)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        r_bin_width = rings[1] - rings[0]
+        ax.errorbar(r_bin_centers, [x.val for x in mean_sats], yerr=[x.err for x in mean_sats],
+                    xerr=r_bin_width / 2, marker='o', color='black', ls='none')
+        ax.set_xlabel('Radial Distance from Pad Center [mm]')
+        ax.set_ylabel('SAT [ps]')
+        ax.set_ylim(bottom=0)
+
+    return r_bin_centers, time_resolutions, mean_sats
+
+
 def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, radius=None):
     radius_str = f' radius={radius:.1f} mm' if radius is not None else ''
 
@@ -453,7 +638,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
     # Plot results
     fig, ax = plt.subplots(figsize=(8, 6))
     c = ax.imshow(scan_resolutions_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
-                  cmap="jet_r")
+                  cmap="jet")
     plt.colorbar(c, label="Timing Resolution [ps]")
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
@@ -461,7 +646,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
 
     # Create the contour plot
     fig, ax = plt.subplots(figsize=(8, 6))
-    contour = ax.contourf(x_mesh, y_mesh, scan_resolutions_2d, levels=50, cmap="jet_r")
+    contour = ax.contourf(x_mesh, y_mesh, scan_resolutions_2d, levels=50, cmap="jet")
 
     # Add color bar
     cbar = plt.colorbar(contour)
@@ -474,7 +659,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
 
     fig, ax = plt.subplots(figsize=(8, 6))
     c = ax.imshow(scan_means_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
-                  cmap="jet_r")
+                  cmap="jet")
     plt.colorbar(c, label="Mean Time Difference [ps]")
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
@@ -482,7 +667,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
 
     # Create the contour plot
     fig, ax = plt.subplots(figsize=(8, 6))
-    contour = ax.contourf(x_mesh, y_mesh, scan_means_2d, levels=50, cmap="jet_r")
+    contour = ax.contourf(x_mesh, y_mesh, scan_means_2d, levels=50, cmap="jet")
 
     # Add color bar
     cbar = plt.colorbar(contour)
