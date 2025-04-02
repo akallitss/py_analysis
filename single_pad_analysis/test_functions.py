@@ -99,8 +99,8 @@ def get_closest_track_indices(df, channel, det_center=None):
             return np.nan
         distances = (np.array(hit_x) - det_center[0]) ** 2 + (np.array(hit_y) - det_center[1]) ** 2  # Squared Euclidean distance
         min_idx = np.argmin(distances)  # Index of the closest hit
-        if min_idx != 0:
-            print(f'hit_x: {hit_x}, hit_y: {hit_y}, distances: {distances}, min_idx: {min_idx}')
+        # if min_idx != 0:
+        #     print(f'hit_x: {hit_x}, hit_y: {hit_y}, distances: {distances}, min_idx: {min_idx}')
         return int(min_idx)
 
     # Apply function row-wise
@@ -703,6 +703,84 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
         ax.set_xlabel("X Position [mm]")
         ax.set_ylabel("Y Position [mm]")
         ax.set_title(f"Event Statistics Heatmap{radius_str}")
+
+
+def plot_rise_fit_params(df):
+    print(df[f'peakparam_C4/peakparam_C4.sigmoidR[4]'])
+    sigmoidR = df[f'peakparam_C4/peakparam_C4.sigmoidR[4]'][pd.notnull(df['peakparam_C4/peakparam_C4.sigmoidR[4]'])]
+    # print(sigmoidR)
+    np_sigmoidR = np.array(sigmoidR.tolist())
+    # print(np_sigmoidR)
+
+    np_sigmoidR = np_sigmoidR[(np_sigmoidR[:, 0] > -999.) & (np_sigmoidR[:, 3] > -999.)]
+
+    # Extract the amplitudes and baselines
+    amplitudes = np_sigmoidR[:, 0]
+    baselines = np_sigmoidR[:, 3]
+
+    # Perform the division
+    division = baselines / amplitudes
+
+    # Create subplots in a 1x3 grid for the three histograms
+    fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 5))  # 1 row, 3 columns
+
+    # Plot for amplitudes
+    ax = axes[0]
+    n_overflows_ampl = np.sum(amplitudes <= 0)  # Count of overflows (invalid or 0 values)
+    ax.hist(amplitudes, bins=100, alpha=0.7, color='blue', edgecolor='black', zorder=2)
+    ax.set_title('Amplitude Distribution')
+    ax.set_xlabel('Amplitude')
+    ax.set_ylabel('Counts')
+    ax.grid(True, zorder=0)
+
+    # Add overflow text for amplitudes
+    ax.text(
+        0.95, 0.9,  # Position (relative to axes, 95% right, 90% up)
+        f'Overflows: {n_overflows_ampl}',
+        transform=ax.transAxes,  # Use axes coordinates
+        fontsize=12, color='red', ha='right', va='top',
+        bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
+    )
+
+    # Plot for baselines
+    ax = axes[1]
+    n_overflows_baseline = np.sum(baselines <= 0)  # Count of overflows (invalid or 0 values)
+    ax.hist(baselines, bins=100, alpha=0.7, color='blue', edgecolor='black', zorder=2)
+    ax.set_title('Baseline Distribution')
+    ax.set_xlabel('Baseline')
+    ax.set_ylabel('Counts')
+    ax.grid(True, zorder=0)
+
+    # Add overflow text for baselines
+    ax.text(
+        0.95, 0.9,  # Position (relative to axes, 95% right, 90% up)
+        f'Overflows: {n_overflows_baseline}',
+        transform=ax.transAxes,  # Use axes coordinates
+        fontsize=12, color='red', ha='right', va='top',
+        bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
+    )
+
+    # Plot for division
+    ax = axes[2]
+    n_overflows_div = np.sum(division <= 0)  # Count of overflows (invalid or 0 values)
+    ax.hist(division, bins=100, alpha=0.7, color='blue', edgecolor='black', zorder=2)
+    ax.set_title('Division of Baseline/Amplitude')
+    ax.set_xlabel('Division')
+    ax.set_ylabel('Counts')
+    ax.grid(True, zorder=0)
+
+    # Add overflow text for division
+    ax.text(
+        0.95, 0.9,  # Position (relative to axes, 95% right, 90% up)
+        f'Overflows: {n_overflows_div}',
+        transform=ax.transAxes,  # Use axes coordinates
+        fontsize=12, color='red', ha='right', va='top',
+        bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
+    )
+
+    # Adjust layout to avoid overlap
+    fig.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust layout to avoid overlap
+    plt.show()
 
 
 def fit_time_diffs(time_diffs, n_bins=100, min_events=100):
