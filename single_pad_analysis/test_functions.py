@@ -384,6 +384,8 @@ def double_expo(x, *p):
 def gaus(x, a, mu, sigma):
     return a * np.exp(-(x-mu)**2/(2*sigma**2))
 
+def line(x, a, b):
+    return a*x + b
 
 def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, plot=True):
     """
@@ -422,26 +424,38 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
         fig, ax = plt.subplots(figsize=(8, 5))
         binning_t20_diff = np.arange(0, 15, 0.1)
         ax.hist(time_diff, bins=binning_t20_diff)
+        ax.set_xlabel('SAT Raw [ns]')
+
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(charges, time_walk_func(charges, *time_walk_p0), color='gray', alpha=0.2)
         ax.plot(charges, time_walk_func(charges, *popt_indiv), color='red', ls='--')
         ax.scatter(charges, time_diff, alpha=0.5)
+        ax.set_xlabel('Charge [pC]')
+        ax.set_ylabel('SAT Raw [ns]')
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.errorbar(avg_charges, med_time_diffs, yerr=std_err_time_diffs, fmt='.', color='black',
                     label='Average charges')
         ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), ls='--', color='red', label='Dynamic bin')
+        ax.set_xlabel('Total Charge [pC]')
+        ax.set_ylabel('SAT [ns]')
+
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.errorbar(avg_charges, gaus_means, yerr=gaus_mean_errs, fmt='.', color='black', label='Average charges')
         ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), ls='--', color='red', label='Dynamic bin')
+        ax.set_xlabel('Total Charge [pC]')
+        ax.set_ylabel('SAT Corrected [ns]')
+
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.scatter(charges, time_diff, alpha=0.2)
         ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), color='red', ls='--', label='Median of Bin Fit')
         ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), color='green', ls='--', label='Gaus Fit of Bin Fit')
         ax.plot(charges, time_walk_func(charges, *popt_indiv), color='blue', ls='--', label='Individual Point Fit')
+        ax.set_xlabel('Charge [pC]')
+        ax.set_ylabel('SAT Raw [ns]')
         ax.legend()
 
     return pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit
@@ -449,6 +463,7 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
 
 
 def get_time_walk_binned(time_diff, charges, n_bins=100, plot=False):
+
     n_event_bins = int(len(charges) / n_bins)
     print('n_event_bins:', n_event_bins)
     # Split numpy array into
@@ -552,7 +567,7 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
             x_plt = np.linspace(bin_centers[0], bin_centers[-1], 200)
             ax.plot(x_plt, gaus(x_plt, *[par.val for par in fit_meases]), color='red')
             ax.set_title(f'Circle Scan: ({x}, {y})')
-            ax.set_xlabel('Time Difference')
+            ax.set_xlabel('SAT [ps]')
             ax.set_ylabel('Counts')
             time_unit = 'ps' if ns_to_ps else 'ns'
             fit_str = f'Fit:\nEvents={n_events}\nA={fit_meases[0]}\nμ={fit_meases[1]} {time_unit}\nσ={fit_meases[2]} {time_unit}'
@@ -660,10 +675,10 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
     fig, ax = plt.subplots(figsize=(8, 6))
     c = ax.imshow(scan_means_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
                   cmap="jet")
-    plt.colorbar(c, label="Mean Time Difference [ps]")
+    plt.colorbar(c, label="SAT [ps]")
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
-    ax.set_title(f"Time Difference Heatmap{radius_str}")
+    ax.set_title(f"SAT Heatmap{radius_str}")
 
     # Create the contour plot
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -671,12 +686,12 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
 
     # Add color bar
     cbar = plt.colorbar(contour)
-    cbar.set_label("Time Difference [ps]")
+    cbar.set_label("SAT [ps]")
 
     # Labels and title
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
-    ax.set_title(f"Time Difference Contour Plot{radius_str}")
+    ax.set_title(f"SAT Contour Plot{radius_str}")
 
     if scan_events is not None:
         scan_events_2d = np.array(scan_events).reshape(len(ys), len(xs))
