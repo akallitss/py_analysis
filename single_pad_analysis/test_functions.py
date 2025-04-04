@@ -2,7 +2,7 @@ import pandas as pd
 import uproot
 import numpy as np
 import matplotlib.pyplot as plt
-from fontTools.misc.cython import returns
+import awkward as ak
 
 from scipy.optimize import curve_fit as cf
 from TriggerEvaluation.Measure import Measure
@@ -87,6 +87,58 @@ def get_single_track(df, channel, track_no=None):
             else:
                 df[col] = np.array(df[col])[track_no]
 
+
+def make_chi2_cut_tracks(df, channels, chi2_quality=3, plot=False):
+    if plot:
+        chi2track_flat = ak.flatten(df['chi2track'])
+        chi2track = ak.to_numpy(chi2track_flat)
+        print(chi2track.min(), chi2track.max())
+
+        fig, ax = plt.subplots()
+        # ax.hist(chi2track, bins=300, log=True, alpha=0.7, color='blue', edgecolor='black')
+        ax.hist(chi2track, bins=300, alpha=0.7, color='blue', edgecolor='black', histtype='stepfilled')
+        ax.set_ylim(top=100)
+        ax.axvline(chi2_quality, color='red')
+        print(f'Number of tracks above 3: {len(chi2track[chi2track > 3])}')
+        print(f'Number of tracks {len(chi2track)}')
+
+        ax.set_xlabel('chi2track')
+        ax.set_ylabel('# of events')
+        ax.set_title('Chi2 Track Distribution')
+        ax.grid(True, linestyle='--', alpha=0.6)
+
+    og_events_with_tracks = ak.sum(ak.count(ak.Array(df['chi2track']), axis=1) > 0)
+
+    chi2track_ak = ak.Array(df['chi2track'])
+    chi2track_filter = chi2track_ak <= chi2_quality
+    df['chi2track'] = ak.to_list(chi2track_ak[chi2track_filter])
+    for channel in channels:
+        for xy in ['X', 'Y']:
+            hit_col = f'hit{xy}_{channel}'
+            hitxy_ak = ak.Array(df[hit_col])
+            df[hit_col] = ak.to_list(hitxy_ak[chi2track_filter])
+
+    after_events_with_tracks = ak.sum(ak.count(ak.Array(df['chi2track']), axis=1) > 0)
+
+    print(f'Original number of events with tracks: {og_events_with_tracks}')
+    print(f'After chi2 cut number of events with tracks: {after_events_with_tracks}')
+
+    if plot:
+        chi2track_flat = ak.flatten(df['chi2track'])
+        chi2track = ak.to_numpy(chi2track_flat)
+        print(chi2track.min(), chi2track.max())
+        fig, ax = plt.subplots()
+        # ax.hist(chi2track, bins=300, log=True, alpha=0.7, color='blue', edgecolor='black')
+        ax.hist(chi2track, bins=300, alpha=0.7, color='blue', edgecolor='black', histtype='stepfilled')
+        ax.set_ylim(top=100)
+        ax.axvline(chi2_quality, color='red')
+
+        ax.set_xlabel('chi2track')
+        ax.set_ylabel('# of events')
+        ax.set_title('Chi2 Track Distribution after chi2 cut')
+        ax.grid(True, linestyle='--', alpha=0.6)
+
+
 def get_closest_track_indices(df, channel, det_center=None):
     "Extract a single track for each channel"
     # Convert list-like column entries to NumPy arrays
@@ -129,246 +181,24 @@ def get_center_all_tracks(df_in, channel):
     return np.median(good_hit_xs), np.median(good_hit_ys)
 
 
+def get_run_event_start(df):
+    hitx = df['hitX_C1'].iloc[0]
+
+    if df['hitX_C1'].iloc[1] != df['hitX_C1'].iloc[0]:
+        return None
+    for row_i in range(len(df['hitX_C1'])):
+        if df['hitX_C1'].iloc[row_i] != hitx:
+            print(f'{row_i} -> {hitx}')
+            event_start = row_i
+            break
+    return event_start
+
+
 def poly_even_fit(x, x0, a, b, c):
     return a + b * (x - x0)**2 + c * (x - x0)**4
 
 
-# def get_pad_center(df, channel, plot=False, bin_width=0.5, min_tracks_per_2d_bin=20, min_avg_charge_per_2d_bin=4,
-#                    charge_col_name='totcharge_filtered', charge_cut_low=0, charge_cut_high=100, plot_only=False):
-#     """
-#     Estimate pad center from average signal charge distribution
-#     Parameters:
-#         df (pd.DataFrame): DataFrame containing the data
-#         channel (string): Channel number (e.g. 'C1', 'C2', 'C3', 'C4')
-#         plot (bool): Whether to plot the results
-#         bin_width (float): [mm] Width of the 2D histogram bins. Same in both x and y.
-#         min_tracks_per_2d_bin (int): Minimum number of tracks per bin
-#         min_avg_charge_per_2d_bin (float): [pC] Minimum average charge per bin
-#         charge_col_name (string): Name of the charge column
-#         charge_cut_low (float): [pC] Lower charge cut. If None, no cut is applied.
-#         charge_cut_high (float): [pC] Upper charge cut. If None, no cut is applied.
-#     Returns:
-#         tuple(Measure, Measure): Tuple of Measure objects representing the x and y pad center estimates
-#         with their uncertainties
-#
-#     """
-#     charge_col = f'peakparam_{channel}/peakparam_{channel}.{charge_col_name}'
-#
-#     basic_charge_cut = pd.Series(True, index=df.index)
-#     if charge_cut_low is not None:
-#         basic_charge_cut &= df[charge_col] > charge_cut_low  # Use `&` for element-wise AND
-#     if charge_cut_high is not None:
-#         basic_charge_cut &= df[charge_col] < charge_cut_high
-#
-#     basic_charge_cut = basic_charge_cut.to_numpy()
-#
-#     xs = df[f'hitX_{channel}'][basic_charge_cut]
-#     ys = df[f'hitY_{channel}'][basic_charge_cut]
-#     charges = df[charge_col][basic_charge_cut]
-#
-#     parameter_string = (f'Bin Width: {bin_width} mm\nMinimum Tracks per Bin: {min_tracks_per_2d_bin}'
-#                         f'\nMinimum Average Charge per Bin: {min_avg_charge_per_2d_bin} pC')
-#
-#     # Define histogram bins
-#     bin_x_min, bin_x_max = np.min(xs), np.max(xs)
-#     bin_y_min, bin_y_max = np.min(ys), np.max(ys)
-#     bins_x = np.arange(bin_x_min, bin_x_max + bin_width, bin_width)
-#     bins_y = np.arange(bin_y_min, bin_y_max + bin_width, bin_width)
-#     bin_centers_x = (bins_x[1:] + bins_x[:-1]) / 2
-#     bin_centers_y = (bins_y[1:] + bins_y[:-1]) / 2
-#
-#     # Create 2D histogram (track multiplicity)
-#     xytrks, _, _ = np.histogram2d(xs, ys, bins=[bins_x, bins_y])
-#
-#     # Create weighted histogram
-#     xytrksW_sum, _, _ = np.histogram2d(xs, ys, bins=[bins_x, bins_y], weights=charges)
-#
-#     # Create boolean mask for bins where xytrks < x
-#     min_track_mask = xytrks < min_tracks_per_2d_bin
-#
-#     # Set corresponding bins to zero in both histograms
-#     xytrks[min_track_mask] = 0
-#     xytrksW_sum[min_track_mask] = 0
-#
-#     # Normalize by dividing the weighted histogram by the original histogram
-#     xytrksW = xytrksW_sum / np.where(xytrks > 0, xytrks, 1)  # Avoid division by zero
-#
-#     min_avg_charge_mask = xytrksW < min_avg_charge_per_2d_bin
-#
-#     xytrks[min_avg_charge_mask] = 0
-#     xytrksW[min_avg_charge_mask] = 0
-#     xytrksW_sum[min_avg_charge_mask] = 0
-#
-#     # Project 2D track multiplicity histograms to 1D
-#     hist_1d_x = np.sum(xytrks, axis=1)
-#     hist_1d_y = np.sum(xytrks, axis=0)
-#
-#     # Find nonzero bins for dynamic range
-#     nonzero_x = np.nonzero(hist_1d_x)[0]
-#     nonzero_y = np.nonzero(hist_1d_y)[0]
-#
-#     if nonzero_x.size > 0:
-#         x_min, x_max = bins_x[nonzero_x[0]], bins_x[nonzero_x[-1] + 1]
-#     else:
-#         x_min, x_max = bins_x[0], bins_x[-1]
-#
-#     if nonzero_y.size > 0:
-#         y_min, y_max = bins_y[nonzero_y[0]], bins_y[nonzero_y[-1] + 1]
-#     else:
-#         y_min, y_max = bins_y[0], bins_y[-1]
-#
-#     x_range, y_range = x_max - x_min, y_max - y_min
-#
-#     if plot:  # Plot 1D of xs (track multiplicity)
-#         fig, axs = plt.subplots(ncols=2, sharey='all', figsize=(12, 6))
-#
-#         axs[0].step(bin_centers_x, hist_1d_x, where='mid', label="Projection on X")
-#         axs[1].step(bin_centers_y, hist_1d_y, where='mid', label="Projection on Y")
-#
-#         extend_range = 0.1
-#         axs[0].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
-#         axs[1].set_xlim(y_min - extend_range * y_range, y_max + extend_range * y_range)
-#
-#         axs[0].set_ylim(bottom=0)
-#         axs[1].set_ylim(bottom=0)
-#         axs[0].legend()
-#         axs[1].legend()
-#         fig.subplots_adjust(wspace=0.0)
-#
-#
-#     # Get pad center from 1D projections after filtering on minimum tracks and minimum average charge
-#     sum_x_charge = np.sum(xytrksW_sum, axis=1)
-#     sum_y_charge = np.sum(xytrksW_sum, axis=0)
-#     sum_x_tracks = np.sum(xytrks, axis=1)
-#     sum_y_tracks = np.sum(xytrks, axis=0)
-#     avg_x_charge = sum_x_charge / np.where(sum_x_tracks > 0, sum_x_tracks, 1)
-#     avg_y_charge = sum_y_charge / np.where(sum_y_tracks > 0, sum_y_tracks, 1)
-#
-#     if not plot_only:
-#         avg_x_charge_err = np.abs(avg_x_charge) / np.sqrt(np.where(sum_x_tracks > 0, sum_x_tracks, 1))
-#         avg_y_charge_err = np.abs(avg_y_charge) / np.sqrt(np.where(sum_y_tracks > 0, sum_y_tracks, 1))
-#
-#         x_fit_mask = (bin_centers_x > x_min) & (bin_centers_x < x_max)
-#         avg_x_charge_x0_guess = np.nanmedian(xs)
-#         avg_x_charge_max = np.max(avg_x_charge[x_fit_mask])
-#         avg_x_charge_curvature_guess = avg_x_charge_max / (x_range / 2) ** 2
-#         p0_x = [avg_x_charge_x0_guess, avg_x_charge_max, -avg_x_charge_curvature_guess, 0]
-#         popt_x_charge, pcov_x_charge = cf(poly_even_fit, bin_centers_x[x_fit_mask], avg_x_charge[x_fit_mask], p0=p0_x,
-#                                           sigma=avg_x_charge_err[x_fit_mask], absolute_sigma=True)
-#         perr_x_charge = np.sqrt(np.diag(pcov_x_charge))
-#         meas_x_charge = [Measure(val, err) for val, err in zip(popt_x_charge, perr_x_charge)]
-#
-#         y_fit_mask = (bin_centers_y > y_min) & (bin_centers_y < y_max)
-#         avg_y_charge_y0_guess = np.nanmedian(ys)
-#         avg_y_charge_max = np.max(avg_y_charge[y_fit_mask])
-#         avg_y_charge_curvature_guess = avg_y_charge_max / (y_range / 2) ** 2
-#         p0_y = [avg_y_charge_y0_guess, avg_y_charge_max, -avg_y_charge_curvature_guess, 0]
-#         popt_y_charge, pcov_y_charge = cf(poly_even_fit, bin_centers_y[y_fit_mask], avg_y_charge[y_fit_mask], p0=p0_y,
-#                                           sigma=avg_y_charge_err[y_fit_mask], absolute_sigma=True)
-#         perr_y_charge = np.sqrt(np.diag(pcov_y_charge))
-#         meas_y_charge = [Measure(val, err) for val, err in zip(popt_y_charge, perr_y_charge)]
-#
-#     if plot:  # Plot 1D of xs and ys weighted by charge (formatted like above)
-#         fig, axs = plt.subplots(ncols=2, sharey='all', figsize=(12, 6))
-#
-#         axs[0].step(bin_centers_x, avg_x_charge, where='mid', label="Avg Charge X", c='k', alpha=0.5)
-#         axs[1].step(bin_centers_y, avg_y_charge, where='mid', label="Avg Charge Y", c='k', alpha=0.5)
-#
-#         if not plot_only:
-#             axs[0].errorbar(bin_centers_x[x_fit_mask], avg_x_charge[x_fit_mask], yerr=avg_x_charge_err[x_fit_mask], ls='none',
-#                             c='k', marker='o', ms=5, capsize=5, elinewidth=0.5)
-#             axs[1].errorbar(bin_centers_y[y_fit_mask], avg_y_charge[y_fit_mask], yerr=avg_y_charge_err[y_fit_mask], ls='none',
-#                             c='k', marker='o', ms=5, capsize=5, elinewidth=0.5)
-#
-#             axs[0].plot(bin_centers_x, poly_even_fit(bin_centers_x, *p0_x), color='gray', ls='-', alpha=0.1)
-#             axs[0].plot(bin_centers_x, poly_even_fit(bin_centers_x, *popt_x_charge), color='red', ls='--')
-#             axs[1].plot(bin_centers_y, poly_even_fit(bin_centers_y, *p0_y), color='gray', ls='-', alpha=0.1)
-#             axs[1].plot(bin_centers_y, poly_even_fit(bin_centers_y, *popt_y_charge), color='red', ls='--')
-#
-#             axs[0].annotate(
-#                 f'Pad X-Center: {meas_x_charge[0]}',
-#                 xy=(0.5, 0.05), xycoords='axes fraction',
-#                 ha='center', va='bottom',
-#                 bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-#             )
-#             axs[1].annotate(
-#                 f'Pad Y-Center: {meas_y_charge[0]}',
-#                 xy=(0.5, 0.05), xycoords='axes fraction',
-#                 ha='center', va='bottom',
-#                 bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-#             )
-#
-#             axs[0].axvline(popt_x_charge[0], color='salmon', ls='-', alpha=0.5)
-#             axs[1].axvline(popt_y_charge[0], color='salmon', ls='-', alpha=0.5)
-#
-#         axs[0].annotate(
-#             parameter_string,
-#             xy=(0.5, 0.2), xycoords='axes fraction',
-#             ha='center', va='bottom',
-#             bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-#         )
-#
-#         axs[1].annotate(
-#             parameter_string,
-#             xy=(0.5, 0.2), xycoords='axes fraction',
-#             ha='center', va='bottom',
-#             bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-#         )
-#
-#         axs[0].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
-#         axs[1].set_xlim(y_min - extend_range * y_range, y_max + extend_range * y_range)
-#         axs[0].set_ylim(bottom=0, top=np.max(avg_x_charge) * 1.1)
-#         axs[1].set_ylim(bottom=0, top=np.max(avg_y_charge) * 1.1)
-#
-#         fig.suptitle('Average Charge per Bin X, Y Distributions')
-#         fig.subplots_adjust(wspace=0.0)
-#
-#         axs[0].legend()
-#         axs[1].legend()
-#
-#     if plot:  # Plot 2D track multiplicity and average charge per track distributions after filtering
-#         # Mask xytrks <1
-#         masked_xy_trks = np.ma.masked_less(xytrks, 1)
-#         masked_xy_trksW = np.ma.masked_equal(xytrksW, 0)
-#
-#         fig, axs = plt.subplots(1, 2, figsize=(14, 6))
-#
-#         # Plot xytrks
-#         im1 = axs[0].imshow(masked_xy_trks.T, origin="lower", extent=[bin_x_min, bin_x_max, bin_y_min, bin_y_max],
-#                             cmap='jet', aspect="auto")
-#         axs[0].set_title("Track Multiplicity")
-#         axs[0].set_xlabel("x [mm]")
-#         axs[0].set_ylabel("y [mm]")
-#         axs[0].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
-#         axs[0].set_ylim(y_min - extend_range * y_range, y_max + extend_range * y_range)
-#         fig.colorbar(im1, ax=axs[0])
-#
-#         # Plot xytrksW
-#         # im2 = axs[1].imshow(masked_xy_trksW.T, origin="lower", extent=[0, 50, 0, 50], cmap='jet', aspect="auto", vmax=np.max(masked_xy_trksW) / 1.8)
-#         im2 = axs[1].imshow(masked_xy_trksW.T, origin="lower", extent=[bin_x_min, bin_x_max, bin_y_min, bin_y_max],
-#                             cmap='jet', aspect="auto")
-#         axs[1].set_title("Average Charge per Track")
-#         axs[1].set_xlabel("x [mm]")
-#         axs[1].set_ylabel("y [mm]")
-#         if not plot_only:
-#             axs[0].scatter(popt_x_charge[0], popt_y_charge[0], marker='x', c='k')
-#             axs[1].scatter(popt_x_charge[0], popt_y_charge[0], marker='x', c='k')
-#             axs[1].annotate(
-#                 f'Pad Center: ({meas_x_charge[0]}, {meas_y_charge[0]})',
-#                 xy=(0.05, 0.95), xycoords='axes fraction',
-#                 ha='left', va='top',
-#                 bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-#             )
-#         axs[1].set_xlim(x_min - extend_range * x_range, x_max + extend_range * x_range)
-#         axs[1].set_ylim(y_min - extend_range * y_range, y_max + extend_range * y_range)
-#         fig.colorbar(im2, ax=axs[1])
-#
-#     if plot_only:
-#         return None, None
-#     else:
-#         return meas_x_charge[0], meas_y_charge[0]
-
-def get_pad_center(charges, xs, ys,  bin_width=0.5, min_tracks_per_2d_bin=20, min_avg_charge_per_2d_bin=4,
+def get_pad_center(charges, xs, ys, bin_width=0.5, min_tracks_per_2d_bin=20, min_avg_charge_per_2d_bin=4,
                         plot=False, plot_only=False):
     """
     Estimate pad center from average signal charge distribution
@@ -384,26 +214,6 @@ def get_pad_center(charges, xs, ys,  bin_width=0.5, min_tracks_per_2d_bin=20, mi
     Returns:
         tuple(Measure, Measure): Tuple of Measure objects representing the x and y pad center estimates
     """
-    # charge_col = f'peakparam_{channel}/peakparam_{channel}.{charge_col_name}'
-    #
-    # basic_charge_cut = pd.Series(True, index=df.index)
-    # if charge_cut_low is not None:
-    #     basic_charge_cut &= df[charge_col] > charge_cut_low  # Use `&` for element-wise AND
-    # if charge_cut_high is not None:
-    #     basic_charge_cut &= df[charge_col] < charge_cut_high
-
-    # basic_charge_cut = basic_charge_cut.to_numpy()
-
-    # xs = df[f'hitX_{channel}'][basic_charge_cut]
-    # ys = df[f'hitY_{channel}'][basic_charge_cut]
-    # charges = df[charge_col][basic_charge_cut]
-
-    # xs = np.array(xs)
-    # ys = np.array(ys)
-    # charges = np.array(charges)
-
-    print(f'xs: {xs}, ys: {ys}, charges: {charges}')
-
     parameter_string = (f'Bin Width: {bin_width} mm\nMinimum Tracks per Bin: {min_tracks_per_2d_bin}'
                         f'\nMinimum Average Charge per Bin: {min_avg_charge_per_2d_bin} pC')
 
@@ -636,7 +446,7 @@ def gaus(x, a, mu, sigma):
 def line(x, a, b):
     return a*x + b
 
-def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, plot=True):
+def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, percentile_cut=(None, None), binning_type='equal_stats', plot=False, plot_indiv_fits=False):
     """
     Get time walk correction for a given channel
     Parameters:
@@ -644,6 +454,8 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
         charges (list): List of micromegas charges
         time_walk_func (function): The time walk function to fit
         time_walk_p0 (list): Initial parameters for the time walk function
+        binning_type (str): Type of binning for the time walk correction
+        percentile_cut (tuple): Percentile cut for the time difference
         plot (bool): Whether to plot the results
     Returns:
         tuple(Measure, Measure): Tuple of Measure objects representing the x and y pad center estimates
@@ -656,7 +468,8 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
     sorted_indices = np.argsort(charges)
     charges, time_diff = charges[sorted_indices], time_diff[sorted_indices]
 
-    avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned(time_diff, charges)
+    # avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned(time_diff, charges)
+    avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned_better(time_diff, charges, 100, binning_type, percentile_cut, plot_indiv_fits)
 
     popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
     pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
@@ -710,76 +523,148 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
     return pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit
 
 
-def get_time_walk_binned(time_diff, charges, n_bins=100, plot=False):
+# def get_time_walk_binned(time_diff, charges, n_bins=100, plot=False):
+#     n_event_bins = int(len(charges) / n_bins)
+#     print('n_event_bins:', n_event_bins)
+#     n_gaus_bins = 10
+#     bin_start = 0
+#     avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = [], [], [], [], []
+#     while bin_start < len(charges) - 1:
+#         bin_end = bin_start + n_event_bins
+#         if bin_end > len(charges):
+#             bin_end = len(charges) - 1
+#             print(f'{bin_end - bin_start} points in the last bin')
+#         bin_charges = charges[bin_start:bin_end]
+#         bin_time_diffs = time_diff[bin_start:bin_end]
+#         avg_charges.append(np.mean(bin_charges))
+#         med_time_diffs.append(np.median(bin_time_diffs))
+#         std_err = np.std(bin_time_diffs) / np.sqrt(len(bin_time_diffs)) if len(bin_time_diffs) > 0 else np.nan
+#         std_err = std_err if std_err > 0 else 1
+#         std_err_time_diffs.append(std_err)
+#
+#         bin_time_diff_hist, bin_time_diff_charge_bin_edges = np.histogram(bin_time_diffs, bins=n_gaus_bins)
+#         bin_time_diff_charge_bin_centers = (bin_time_diff_charge_bin_edges[1:] + bin_time_diff_charge_bin_edges[
+#                                                                                  :-1]) / 2
+#         p0_gaus_bin = [np.max(bin_time_diff_hist), np.mean(bin_time_diffs), np.std(bin_time_diffs)]
+#         try:
+#             popt_gaus_bin, pcov_gaus_bin = cf(gaus, bin_time_diff_charge_bin_centers, bin_time_diff_hist,
+#                                               p0=p0_gaus_bin, maxfev=10000)
+#             perr_gaus_bin = np.sqrt(np.diag(pcov_gaus_bin))
+#
+#             if plot:
+#                 fig, ax = plt.subplots(figsize=(8, 5))
+#                 bin_time_diff_charg_bin_widths = np.diff(bin_time_diff_charge_bin_edges)
+#                 ax.bar(bin_time_diff_charge_bin_centers, bin_time_diff_hist, width=bin_time_diff_charg_bin_widths,
+#                        color='black')
+#                 x_plot = np.linspace(bin_time_diff_charge_bin_edges[0], bin_time_diff_charge_bin_edges[-1], 200)
+#                 ax.plot(x_plot, gaus(x_plot, *p0_gaus_bin), color='gray', alpha=0.2)
+#                 ax.plot(x_plot, gaus(x_plot, *popt_gaus_bin), color='red')
+#                 ax.set_title(f'Fit from {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
+#
+#             gaus_means.append(popt_gaus_bin[1])
+#             gaus_mean_errs.append(perr_gaus_bin[1])
+#
+#         except RuntimeError:
+#             print(f'gaus_bin_hist failed for bin {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
+#             gaus_means.append(p0_gaus_bin[1])
+#             gaus_mean_errs.append(p0_gaus_bin[1])
+#
+#         bin_start = bin_end
+#
+#     return avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs
 
-    n_event_bins = int(len(charges) / n_bins)
-    print('n_event_bins:', n_event_bins)
-    # Split numpy array into
-    n_gaus_bins = 10
-    bin_start = 0
-    plot_individual_bin_gaus_fit = False
+
+def get_time_walk_binned_better(time_diff, charges, n_bins=100, binning_type='equal_steps', percentile_cut=(None, None), plot=False):
+    if binning_type == 'equal_stats':
+        print(f'n_event_bins: {int(len(charges) / n_bins)}')
+        charge_bin_edges = np.percentile(charges, np.linspace(0, 100, n_bins + 1))
+    elif binning_type == 'equal_steps':
+        charge_bin_edges = np.linspace(np.min(charges), np.max(charges), n_bins + 1)
+    else:
+        raise ValueError(f"Invalid binning type: {binning_type}")
+
+    if percentile_cut[0] is not None or percentile_cut[1] is not None:
+        percentile_filter = make_percentile_cuts(time_diff, percentile_cuts=percentile_cut, return_what='filter')
+        time_diff = time_diff[percentile_filter]
+        charges = charges[percentile_filter]
+
     avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = [], [], [], [], []
-    while bin_start < len(charges) - 1:
-        bin_end = bin_start + n_event_bins
-        if bin_end > len(charges):
-            bin_end = len(charges) - 1
-            print(f'{bin_end - bin_start} points in the last bin')
-        bin_charges = charges[bin_start:bin_end]
-        bin_time_diffs = time_diff[bin_start:bin_end]
-        avg_charges.append(np.mean(bin_charges))
-        med_time_diffs.append(np.median(bin_time_diffs))
-        std_err = np.std(bin_time_diffs) / np.sqrt(len(bin_time_diffs)) if len(bin_time_diffs) > 0 else np.nan
+    for i in range(n_bins):
+        bin_charge_min, bin_charge_max = charge_bin_edges[i], charge_bin_edges[i + 1]
+        charges_filter = (charges > bin_charge_min) & (charges < bin_charge_max)
+        bin_charges = charges[charges_filter]
+        bin_time_diffs = time_diff[charges_filter]
+
+        bin_n_events = np.sum(~np.isnan(bin_time_diffs))
+        if bin_n_events == 0:
+            print(f'No events in bin {i} ({bin_charge_min:.2f} pC to {bin_charge_max:.2f} pC)')
+            continue
+        elif bin_n_events == 1:
+            print(f'Only one event in bin {i} ({bin_charge_min:.2f} pC to {bin_charge_max:.2f} pC)')
+            med = np.nanmedian(bin_time_diffs)
+            # Use last bin std if it exists
+            if len(std_err_time_diffs) > 0:
+                std = std_err_time_diffs[-1]
+            else:
+                std = med
+            med_time_diffs.append(med)
+            std_err_time_diffs.append(std)
+            gaus_means.append(med)
+            gaus_mean_errs.append(std)
+            if np.isnan(med) or np.isnan(std):
+                print(f'NaN in bin {i} ({bin_charge_min:.2f} pC to {bin_charge_max:.2f} pC)')
+            avg_charges.append(np.nanmean(bin_charges))
+            continue
+
+        avg_charges.append(np.nanmean(bin_charges))
+        if np.isnan(avg_charges[-1]):
+            print(f'NaN in bin {i} ({bin_charge_min:.2f} pC to {bin_charge_max:.2f} pC)')
+
+        med_time_diffs.append(np.nanmedian(bin_time_diffs))
+        std_err = np.nanstd(bin_time_diffs) / np.sqrt(bin_n_events) if bin_n_events > 0 else 1
         std_err = std_err if std_err > 0 else 1
         std_err_time_diffs.append(std_err)
 
-        bin_time_diff_hist, bin_time_diff_charge_bin_edges = np.histogram(bin_time_diffs, bins=n_gaus_bins)
-        bin_time_diff_charge_bin_centers = (bin_time_diff_charge_bin_edges[1:] + bin_time_diff_charge_bin_edges[
-                                                                                 :-1]) / 2
-        p0_gaus_bin = [np.max(bin_time_diff_hist), np.mean(bin_time_diffs), np.std(bin_time_diffs)]
-        try:
-            popt_gaus_bin, pcov_gaus_bin = cf(gaus, bin_time_diff_charge_bin_centers, bin_time_diff_hist,
-                                              p0=p0_gaus_bin, maxfev=10000)
-            perr_gaus_bin = np.sqrt(np.diag(pcov_gaus_bin))
+        bin_n_fit_bins = 2 * (np.percentile(bin_time_diffs, 75) - np.percentile(bin_time_diffs, 25))
+        bin_n_fit_bins /=  bin_n_events**(1/3)  # Freedman-Diaconis Rule
+        bin_n_fit_bins = max(bin_n_fit_bins, 10)
+        fit_meases = fit_time_diffs(bin_time_diffs, n_bins=bin_n_fit_bins, min_events=10)
 
-            if plot_individual_bin_gaus_fit:
-                fig, ax = plt.subplots(figsize=(8, 5))
-                bin_time_diff_charg_bin_widths = np.diff(bin_time_diff_charge_bin_edges)
-                ax.bar(bin_time_diff_charge_bin_centers, bin_time_diff_hist, width=bin_time_diff_charg_bin_widths,
-                       color='black')
-                x_plot = np.linspace(bin_time_diff_charge_bin_edges[0], bin_time_diff_charge_bin_edges[-1], 200)
-                ax.plot(x_plot, gaus(x_plot, *p0_gaus_bin), color='gray', alpha=0.2)
-                ax.plot(x_plot, gaus(x_plot, *popt_gaus_bin), color='red')
-                ax.set_title(f'Fit from {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
+        if plot:
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.hist(bin_time_diffs, bins=bin_n_fit_bins, histtype='stepfilled', color='black')
+            x_plot = np.linspace(np.min(bin_time_diffs), np.max(bin_time_diffs), 200)
+            # ax.plot(x_plot, gaus(x_plot, *p0_gaus_bin), color='gray', alpha=0.2)
+            ax.plot(x_plot, gaus(x_plot, *[x.val for x in fit_meases]), color='red')
+            ax.set_title(f'Fit from {bin_charge_min:.2f} pC to {bin_charge_max:2f} pC')
 
-            gaus_means.append(popt_gaus_bin[1])
-            gaus_mean_errs.append(perr_gaus_bin[1])
-
-        except RuntimeError:
-            print(f'gaus_bin_hist failed for bin {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
-            gaus_means.append(p0_gaus_bin[1])
-            gaus_mean_errs.append(p0_gaus_bin[1])
-
-        bin_start = bin_end
+        gaus_mean = fit_meases[1].val if not np.isnan(fit_meases[1].val) else np.nanmean(bin_time_diffs)
+        gaus_mean_err = fit_meases[1].err if not np.isnan(fit_meases[1].err) else np.nanstd(bin_time_diffs)
+        gaus_means.append(gaus_mean)
+        gaus_mean_errs.append(gaus_mean_err)
 
     return avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs
 
 
-def make_percentile_cuts(data, percentile_cuts=(None,None)):
+def make_percentile_cuts(data, percentile_cuts=(None,None), return_what='data'):
     if len(data) == 0:
         return data
 
     if percentile_cuts[0] is not None and percentile_cuts[1] is not None:
         low_percentile = np.percentile(data, percentile_cuts[0])
         high_percentile = np.percentile(data, percentile_cuts[1])
-        data = data[(data > low_percentile) & (data < high_percentile)]
+        percentile_filter = (data > low_percentile) & (data < high_percentile)
     elif percentile_cuts[0] is not None:
         low_percentile = np.percentile(data, percentile_cuts[0])
-        data = data[data > low_percentile]
+        percentile_filter = data > low_percentile
     elif percentile_cuts[1] is not None:
         high_percentile = np.percentile(data, percentile_cuts[1])
-        data = data[data < high_percentile]
+        percentile_filter = data < high_percentile
 
-    return data
+    if return_what == 'filter':
+        return percentile_filter
+    else:
+        return data[percentile_filter]
 
 
 def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, percentile_cuts=(None, None), plot=False):
@@ -827,15 +712,28 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
     return resolutions, means, events
 
 
-def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), plot=False):
+def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), xs=None, ys=None, plot=False):
 
     if plot:
-        fig, ax = plt.subplots(figsize=(8, 5))
+        if xs is not None and ys is not None:
+            fig, axs = plt.subplots(ncols=2, figsize=(12, 8))
+            ax, ax_xy = axs
+            ax_xy.set_xlabel('X [mm]')
+            ax_xy.set_ylabel('Y [mm]')
+        else:
+            fig, ax = plt.subplots(figsize=(8, 5))
         ax.scatter(rs, time_diff_cor, alpha=0.2)
+        ax.set_xlabel('Radial Distance from Pad Center [mm]')
+        ax.set_ylabel('SAT [ns]')
         for r_bin_edge in rings:
             ax.axvline(r_bin_edge, color='red')
             ax.set_xlim(0, 10)
             ax.set_ylim(-2, 2)
+
+            if xs is not None and ys is not None:
+                pass
+                # Make circle patch at r_bin_edge
+                # ax_xy.add_patch(plt.Circle((center_x, center_y), r_bin_edge, color='red', fill=False, alpha=0.5))
 
     time_diff_binning = 100
     r_bin_centers, time_resolutions, mean_sats = [], [], []
@@ -855,18 +753,24 @@ def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(Non
         r_bin_centers.append((r_bin_edge + r_bin_upper_edge) / 2)
 
         if plot:
-            fig, ax = plt.subplots(figsize=(8, 5))
-            ax.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
+            fig_ring, ax_ring = plt.subplots(figsize=(8, 5))
+            ax_ring.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
                    label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
             fit_str = rf'$A = {fit_meases[0]}$' + '\n' + rf'$\mu = {fit_meases[1]}$' + '\n' + rf'$\sigma = {fit_meases[2]}$'
-            ax.plot(time_diff_bin_centers, gaus(time_diff_bin_centers, *[par.val for par in fit_meases]), color='red', label='Fit')
-            ax.annotate(
+            ax_ring.plot(time_diff_bin_centers, gaus(time_diff_bin_centers, *[par.val for par in fit_meases]), color='red', label='Fit')
+            ax_ring.set_xlabel('SAT [ns]')
+            ax_ring.annotate(
             fit_str,
             xy=(0.1, 0.9), xycoords='axes fraction',
             ha='left', va='top',
             bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
             )
-            ax.legend()
+            ax_ring.legend()
+
+            if xs is not None and ys is not None:
+                xs_ring, ys_ring = xs[r_bin_filter], ys[r_bin_filter]
+                ax_xy.scatter(xs_ring, ys_ring, alpha=0.2)
+
     if plot:
         fig, ax = plt.subplots(figsize=(8, 5))
         r_bin_width = rings[1] - rings[0]
