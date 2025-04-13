@@ -89,63 +89,52 @@ def get_single_track(df, channel, track_no=None):
                 df[col] = np.array(df[col])[track_no]
 
 
+def get_best_tracks(df, channels, chi2_quality, plot=False):
+    median_x, median_y = get_center_all_tracks(df, 'C1')
+    ak_arrays = make_chi2_cut_tracks(df, channels, chi2_quality, plot=plot)
+
+    min_indices = get_closest_track_indices_ak(ak_arrays, 'C1', (median_x, median_y))
+
+    for key in ak_arrays.fields:
+        min_chi2_tracks = ak_arrays[key][ak.local_index(ak_arrays[key]) == min_indices[:, None]]
+        df[key] = ak.to_numpy(ak.firsts(min_chi2_tracks))
+
+
 def make_chi2_cut_tracks(df, channels, chi2_quality=3, plot=False):
+    ak_arrays = {'chi2track': ak.Array(df['chi2track'].to_list())}
+    for channel in channels:
+        for xy in ['X', 'Y']:
+            hit_col = f'hit{xy}_{channel}'
+            ak_arrays.update({hit_col: ak.Array(df[hit_col].to_list())})
+
+    ak_arrays = ak.Array(ak_arrays)
+
+    og_events_with_tracks = ak.sum(ak.count(ak_arrays['chi2track'], axis=1) > 0)
+
     if plot:
-        chi2track_flat = ak.flatten(df['chi2track'])
-        chi2track = ak.to_numpy(chi2track_flat)
-        print(chi2track.min(), chi2track.max())
+        chi2track = ak.flatten(ak_arrays['chi2track'])
+        chi2track = ak.to_numpy(chi2track)
 
         fig, ax = plt.subplots()
         # ax.hist(chi2track, bins=300, log=True, alpha=0.7, color='blue', edgecolor='black')
         ax.hist(chi2track, bins=300, alpha=0.7, color='blue', edgecolor='black', histtype='stepfilled')
         ax.set_ylim(top=100)
         ax.axvline(chi2_quality, color='red')
-        print(f'Number of tracks above 3: {len(chi2track[chi2track > 3])}')
-        print(f'Number of tracks {len(chi2track)}')
 
         ax.set_xlabel('chi2track')
         ax.set_ylabel('# of events')
         ax.set_title('Chi2 Track Distribution')
         ax.grid(True, linestyle='--', alpha=0.6)
 
-    og_events_with_tracks = ak.sum(ak.count(ak.Array(df['chi2track']), axis=1) > 0)
+    ak_arrays = ak_arrays[ak_arrays['chi2track'] < chi2_quality]
 
-    chi2track_ak = ak.Array(df['chi2track'])
-    chi2track_filter = chi2track_ak <= chi2_quality
-    df['chi2track'] = ak.to_list(chi2track_ak[chi2track_filter])
-    for channel in channels:
-        for xy in ['X', 'Y']:
-            hit_col = f'hit{xy}_{channel}'
-            hitxy_ak = ak.Array(df[hit_col])
-            df[hit_col] = ak.to_list(hitxy_ak[chi2track_filter])
-
-    # # Assume df, chi2_quality, and channels are defined
-    # chi2track_ak = ak.Array(df['chi2track'])
-    # chi2track_filter = chi2track_ak <= chi2_quality
-    # df['chi2track'] = ak.to_list(chi2track_ak[chi2track_filter])
-    #
-    # def filter_column(hit_col):
-    #     hitxy_ak = ak.Array(df[hit_col])
-    #     return hit_col, ak.to_list(hitxy_ak[chi2track_filter])
-    #
-    # # Build column names to filter
-    # cols_to_filter = [f'hit{xy}_{channel}' for channel in channels for xy in ['X', 'Y']]
-    #
-    # # Run in parallel using ThreadPoolExecutor
-    # with ThreadPoolExecutor() as executor:
-    #     results = executor.map(filter_column, cols_to_filter)
-    #
-    # # Update DataFrame
-    # for col, filtered in results:
-    #     df[col] = filtered
-
-    after_events_with_tracks = ak.sum(ak.count(ak.Array(df['chi2track']), axis=1) > 0)
+    after_events_with_tracks = ak.sum(ak.count(ak_arrays['chi2track'], axis=1) > 0)
 
     print(f'Original number of events with tracks: {og_events_with_tracks}')
     print(f'After chi2 cut number of events with tracks: {after_events_with_tracks}')
 
     if plot:
-        chi2track_flat = ak.flatten(df['chi2track'])
+        chi2track_flat = ak.flatten(ak_arrays['chi2track'])
         chi2track = ak.to_numpy(chi2track_flat)
         print(chi2track.min(), chi2track.max())
         fig, ax = plt.subplots()
@@ -158,6 +147,8 @@ def make_chi2_cut_tracks(df, channels, chi2_quality=3, plot=False):
         ax.set_ylabel('# of events')
         ax.set_title('Chi2 Track Distribution after chi2 cut')
         ax.grid(True, linestyle='--', alpha=0.6)
+
+    return ak_arrays
 
 
 def get_closest_track_indices(df, channel, det_center=None):
@@ -182,6 +173,15 @@ def get_closest_track_indices(df, channel, det_center=None):
     # Split results into separate columns
     # df[['closest_hit_index']] = pd.DataFrame(closest_hits.tolist(), index=df.index)
     df['closest_hit_index'] = closest_hits
+
+
+def get_closest_track_indices_ak(ak_arrays, channel, det_center=None):
+    "Extract a single track for each channel"
+
+    distances = (ak_arrays[f'hitX_{channel}'] - det_center[0]) ** 2 + (ak_arrays[f'hitY_{channel}'] - det_center[1]) ** 2  # Squared Euclidean distance
+    min_idxs = ak.argmin(distances, axis=1)  # Index of the closest hit
+    return min_idxs
+
 
 def get_center_all_tracks(df_in, channel):
     "Extract the center of distribution for all tracks"
