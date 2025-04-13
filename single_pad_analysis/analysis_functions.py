@@ -3,6 +3,7 @@ import uproot
 import numpy as np
 import matplotlib.pyplot as plt
 import awkward as ak
+from concurrent.futures import ThreadPoolExecutor
 
 from scipy.optimize import curve_fit as cf
 from TriggerEvaluation.Measure import Measure
@@ -29,7 +30,7 @@ def get_df(tree, *indexes):
     return dataframe
 
 
-def get_df_branches(tree, branches, step_size='10 MB'):
+def get_df_branches(tree, branches, step_size='1000 MB'):
     dfs = []
     for df, report in tree.iterate(branches, step_size=step_size, library='pd', report = True):
         print(report)
@@ -117,6 +118,26 @@ def make_chi2_cut_tracks(df, channels, chi2_quality=3, plot=False):
             hit_col = f'hit{xy}_{channel}'
             hitxy_ak = ak.Array(df[hit_col])
             df[hit_col] = ak.to_list(hitxy_ak[chi2track_filter])
+
+    # # Assume df, chi2_quality, and channels are defined
+    # chi2track_ak = ak.Array(df['chi2track'])
+    # chi2track_filter = chi2track_ak <= chi2_quality
+    # df['chi2track'] = ak.to_list(chi2track_ak[chi2track_filter])
+    #
+    # def filter_column(hit_col):
+    #     hitxy_ak = ak.Array(df[hit_col])
+    #     return hit_col, ak.to_list(hitxy_ak[chi2track_filter])
+    #
+    # # Build column names to filter
+    # cols_to_filter = [f'hit{xy}_{channel}' for channel in channels for xy in ['X', 'Y']]
+    #
+    # # Run in parallel using ThreadPoolExecutor
+    # with ThreadPoolExecutor() as executor:
+    #     results = executor.map(filter_column, cols_to_filter)
+    #
+    # # Update DataFrame
+    # for col, filtered in results:
+    #     df[col] = filtered
 
     after_events_with_tracks = ak.sum(ak.count(ak.Array(df['chi2track']), axis=1) > 0)
 
@@ -304,8 +325,10 @@ def get_pad_center(charges, xs, ys, bin_width=0.5, min_tracks_per_2d_bin=20, min
     avg_y_charge = sum_y_charge / np.where(sum_y_tracks > 0, sum_y_tracks, 1)
 
     if not plot_only:
-        avg_x_charge_err = np.abs(avg_x_charge) / np.sqrt(np.where(sum_x_tracks > 0, sum_x_tracks, 1))
-        avg_y_charge_err = np.abs(avg_y_charge) / np.sqrt(np.where(sum_y_tracks > 0, sum_y_tracks, 1))
+        # avg_x_charge_err = np.abs(avg_x_charge) / np.sqrt(np.where(sum_x_tracks > 0, sum_x_tracks, 1))
+        avg_x_charge_err = np.where(sum_x_tracks > 0, np.abs(avg_x_charge) / np.sqrt(sum_x_tracks), 1)
+        # avg_y_charge_err = np.abs(avg_y_charge) / np.sqrt(np.where(sum_y_tracks > 0, sum_y_tracks, 1))
+        avg_y_charge_err = np.where(sum_y_tracks > 0, np.abs(avg_y_charge) / np.sqrt(sum_y_tracks), 1)
 
         x_fit_mask = (bin_centers_x > x_min) & (bin_centers_x < x_max)
         avg_x_charge_x0_guess = np.nanmedian(xs)
@@ -471,16 +494,28 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
     # avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned(time_diff, charges)
     avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned_better(time_diff, charges, 100, binning_type, percentile_cut, plot_indiv_fits)
 
-    popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
-    pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
+    try:
+        popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
+        pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
+    except RuntimeError as e:
+        print(f"Error fitting individual points: {e}")
+        popt_indiv, pcov_indiv, pmeas_indiv = None, None, None
 
-    popt_dyn_bin, pcov_dyn_bin = cf(time_walk_func, avg_charges, med_time_diffs, sigma=std_err_time_diffs,
+    try:
+        popt_dyn_bin, pcov_dyn_bin = cf(time_walk_func, avg_charges, med_time_diffs, sigma=std_err_time_diffs,
                                     absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
-    pmeas_dyn_bin = [Measure(val, err) for val, err in zip(popt_dyn_bin, np.sqrt(np.diag(pcov_dyn_bin)))]
+        pmeas_dyn_bin = [Measure(val, err) for val, err in zip(popt_dyn_bin, np.sqrt(np.diag(pcov_dyn_bin)))]
+    except RuntimeError as e:
+        print(f"Error fitting dynamic bin: {e}")
+        popt_dyn_bin, pcov_dyn_bin, pmeas_dyn_bin = None, None, None
 
-    popt_gaus_fits, pcov_gaus_fits = cf(time_walk_func, avg_charges, gaus_means, sigma=gaus_mean_errs,
+    try:
+        popt_gaus_fits, pcov_gaus_fits = cf(time_walk_func, avg_charges, gaus_means, sigma=gaus_mean_errs,
                                         absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
-    pmeas_gaus_fit = [Measure(val, err) for val, err in zip(popt_gaus_fits, np.sqrt(np.diag(pcov_gaus_fits)))]
+        pmeas_gaus_fit = [Measure(val, err) for val, err in zip(popt_gaus_fits, np.sqrt(np.diag(pcov_gaus_fits)))]
+    except RuntimeError as e:
+        print(f"Error fitting Gaussian fits: {e}")
+        popt_gaus_fits, pcov_gaus_fits, pmeas_gaus_fit = None, None, None
 
     if plot:
         fig, ax = plt.subplots(figsize=(8, 5))
@@ -491,7 +526,8 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(charges, time_walk_func(charges, *time_walk_p0), color='gray', alpha=0.2)
-        ax.plot(charges, time_walk_func(charges, *popt_indiv), color='red', ls='--')
+        if popt_indiv is not None:
+            ax.plot(charges, time_walk_func(charges, *popt_indiv), color='red', ls='--')
         ax.scatter(charges, time_diff, alpha=0.5)
         ax.set_xlabel('Charge [pC]')
         ax.set_ylabel('SAT Raw [ns]')
@@ -499,23 +535,28 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.errorbar(avg_charges, med_time_diffs, yerr=std_err_time_diffs, fmt='.', color='black',
                     label='Average charges')
-        ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), ls='--', color='red', label='Dynamic bin')
+        if popt_dyn_bin is not None:
+            ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), ls='--', color='red', label='Dynamic bin')
         ax.set_xlabel('Total Charge [pC]')
         ax.set_ylabel('SAT [ns]')
 
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.errorbar(avg_charges, gaus_means, yerr=gaus_mean_errs, fmt='.', color='black', label='Average charges')
-        ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), ls='--', color='red', label='Dynamic bin')
+        if popt_gaus_fits is not None:
+            ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), ls='--', color='red', label='Dynamic bin')
         ax.set_xlabel('Total Charge [pC]')
         ax.set_ylabel('SAT Corrected [ns]')
 
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.scatter(charges, time_diff, alpha=0.2)
-        ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), color='red', ls='--', label='Median of Bin Fit')
-        ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), color='green', ls='--', label='Gaus Fit of Bin Fit')
-        ax.plot(charges, time_walk_func(charges, *popt_indiv), color='blue', ls='--', label='Individual Point Fit')
+        if popt_dyn_bin is not None:
+            ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), color='red', ls='--', label='Median of Bin Fit')
+        if popt_gaus_fits is not None:
+            ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), color='green', ls='--', label='Gaus Fit of Bin Fit')
+        if popt_indiv is not None:
+            ax.plot(charges, time_walk_func(charges, *popt_indiv), color='blue', ls='--', label='Individual Point Fit')
         ax.set_xlabel('Charge [pC]')
         ax.set_ylabel('SAT Raw [ns]')
         ax.legend()
@@ -627,7 +668,7 @@ def get_time_walk_binned_better(time_diff, charges, n_bins=100, binning_type='eq
 
         bin_n_fit_bins = 2 * (np.percentile(bin_time_diffs, 75) - np.percentile(bin_time_diffs, 25))
         bin_n_fit_bins /=  bin_n_events**(1/3)  # Freedman-Diaconis Rule
-        bin_n_fit_bins = max(bin_n_fit_bins, 10)
+        bin_n_fit_bins = max(int(bin_n_fit_bins), 10)
         fit_meases = fit_time_diffs(bin_time_diffs, n_bins=bin_n_fit_bins, min_events=10)
 
         if plot:
