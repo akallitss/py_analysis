@@ -132,10 +132,10 @@ def main():
     # Plot amp distribution
     fig, ax = plt.subplots(figsize=(8, 6))
     hist, bin_edges, _ = ax.hist(amps, bins=20, color='gray', edgecolor='black', alpha=0.3)
-    ax.hist(amps_triggerd, bins=bin_edges, color='blue', edgecolor='black', alpha=0.3)
+    # ax.hist(amps_triggerd, bins=bin_edges, color='blue', edgecolor='black', alpha=0.3)
     ax.set_xlabel('Amplitude (V)', fontsize=16, fontweight='bold', family='serif')
     ax.set_ylabel('Counts', fontsize=16, fontweight='bold', family='serif')
-    ax.set_title('Amplitude Distribution', fontsize=18, fontweight='bold', family='serif')
+    # ax.set_title('Amplitude Distribution', fontsize=18, fontweight='bold', family='serif')
     ax.tick_params(axis='both', which='both', direction='in', length=8, width=2, labelsize=14)
     for spine in ax.spines.values():
         spine.set_linewidth(2)
@@ -194,7 +194,7 @@ def main():
     # ax.plot(integration_points, true_negative_fraction, label='True Negative Fraction', marker='o')
     ax.set_xlabel('Integration Points', fontsize=16, fontweight='bold', family='serif')
     ax.set_ylabel('Fraction', fontsize=16, fontweight='bold', family='serif')
-    ax.set_title('Trigger Evaluation', fontsize=18, fontweight='bold', family='serif')
+    # ax.set_title('Trigger Evaluation', fontsize=18, fontweight='bold', family='serif')
     ax.tick_params(axis='both', which='both', direction='in', length=8, width=2, labelsize=14)
     for spine in ax.spines.values():
         spine.set_linewidth(2)
