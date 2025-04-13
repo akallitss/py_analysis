@@ -529,8 +529,9 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
         if popt_indiv is not None:
             ax.plot(charges, time_walk_func(charges, *popt_indiv), color='red', ls='--')
         ax.scatter(charges, time_diff, alpha=0.5)
+        ax.set_ylim(np.percentile(time_diff, 1), np.percentile(time_diff, 99))
         ax.set_xlabel('Charge [pC]')
-        ax.set_ylabel('SAT Raw [ns]')
+        ax.set_ylabel('SAT Individual [ns]')
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.errorbar(avg_charges, med_time_diffs, yerr=std_err_time_diffs, fmt='.', color='black',
@@ -538,7 +539,7 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
         if popt_dyn_bin is not None:
             ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), ls='--', color='red', label='Dynamic bin')
         ax.set_xlabel('Total Charge [pC]')
-        ax.set_ylabel('SAT [ns]')
+        ax.set_ylabel('SAT Medians [ns]')
 
 
         fig, ax = plt.subplots(figsize=(8, 5))
@@ -546,7 +547,7 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
         if popt_gaus_fits is not None:
             ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), ls='--', color='red', label='Dynamic bin')
         ax.set_xlabel('Total Charge [pC]')
-        ax.set_ylabel('SAT Corrected [ns]')
+        ax.set_ylabel('SAT Gaussian [ns]')
 
 
         fig, ax = plt.subplots(figsize=(8, 5))
@@ -559,6 +560,7 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
             ax.plot(charges, time_walk_func(charges, *popt_indiv), color='blue', ls='--', label='Individual Point Fit')
         ax.set_xlabel('Charge [pC]')
         ax.set_ylabel('SAT Raw [ns]')
+        ax.set_ylim(np.percentile(time_diff, 1), np.percentile(time_diff, 99))
         ax.legend()
 
     return pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit
