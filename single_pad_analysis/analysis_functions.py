@@ -3,8 +3,7 @@ import uproot
 import numpy as np
 import matplotlib.pyplot as plt
 import awkward as ak
-from concurrent.futures import ThreadPoolExecutor
-
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from scipy.optimize import curve_fit as cf
 from TriggerEvaluation.Measure import Measure
 
@@ -711,6 +710,19 @@ def make_percentile_cuts(data, percentile_cuts=(None,None), return_what='data'):
     else:
         return data[percentile_filter]
 
+def generate_line_scan(x_center, y_center, scan_radius, n_steps, angle_deg):
+    angle_rad = np.deg2rad(angle_deg)
+    ts = np.linspace(-scan_radius, scan_radius, n_steps + 1)
+    xs_scan = x_center + ts * np.cos(angle_rad)
+    ys_scan = y_center + ts * np.sin(angle_rad)
+    return list(zip(xs_scan, ys_scan))
+
+
+def relative_distances(xy_pairs, x_center, y_center):
+    return [np.hypot(x - x_center, y - y_center) * np.sign((x - x_center) * np.cos(theta_rad) + (y - y_center) * np.sin(theta_rad))
+            for x, y in xy_pairs]
+
+
 
 def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, percentile_cuts=(None, None), plot=False):
     if ns_to_ps:
@@ -757,6 +769,83 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
     return resolutions, means, events
 
 
+# def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), xs=None, ys=None, plot=False):
+#
+#     if plot:
+#         if xs is not None and ys is not None:
+#             fig, axs = plt.subplots(ncols=2, figsize=(12, 8))
+#             ax, ax_xy = axs
+#             ax_xy.set_xlabel('X [mm]')
+#             ax_xy.set_ylabel('Y [mm]')
+#         else:
+#             fig, ax = plt.subplots(figsize=(8, 5))
+#         ax.scatter(rs, time_diff_cor, alpha=0.2)
+#         ax.set_xlabel('Radial Distance from Pad Center [mm]')
+#         ax.set_ylabel('SAT [ns]')
+#         for r_bin_edge in rings:
+#             ax.axvline(r_bin_edge, color='red')
+#             ax.set_xlim(0, 10)
+#             ax.set_ylim(-2, 2)
+#
+#             if xs is not None and ys is not None:
+#                 pass
+#                 # Make circle patch at r_bin_edge
+#                 # ax_xy.add_patch(plt.Circle((center_x, center_y), r_bin_edge, color='red', fill=False, alpha=0.5))
+#
+#     time_diff_binning = 100
+#     r_bin_centers, time_resolutions, mean_sats = [], [], []
+#     for r_bin_edge in rings:
+#         r_bin_upper_edge = r_bin_edge + ring_bin_width
+#         r_bin_filter = (rs > r_bin_edge) & (rs <= r_bin_upper_edge)
+#         time_diffs_r_bin = time_diff_cor[r_bin_filter]
+#
+#         time_diffs_r_bin = make_percentile_cuts(time_diffs_r_bin, percentile_cuts)
+#
+#         time_hist, bin_edges = np.histogram(time_diffs_r_bin, bins=time_diff_binning)
+#         time_diff_bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+#
+#         fit_meases = fit_time_diffs(time_diffs_r_bin, n_bins=time_diff_binning, min_events=100)
+#         mean_sats.append(fit_meases[1]*1e3)
+#         time_resolutions.append(fit_meases[2] * 1e3)
+#         r_bin_centers.append((r_bin_edge + r_bin_upper_edge) / 2)
+#
+#         if plot:
+#             fig_ring, ax_ring = plt.subplots(figsize=(8, 5))
+#             ax_ring.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
+#                    label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
+#             fit_str = rf'$A = {fit_meases[0]}$' + '\n' + rf'$\mu = {fit_meases[1]}$' + '\n' + rf'$\sigma = {fit_meases[2]}$'
+#             ax_ring.plot(time_diff_bin_centers, gaus(time_diff_bin_centers, *[par.val for par in fit_meases]), color='red', label='Fit')
+#             ax_ring.set_xlabel('SAT [ns]')
+#             ax_ring.annotate(
+#             fit_str,
+#             xy=(0.1, 0.9), xycoords='axes fraction',
+#             ha='left', va='top',
+#             bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
+#             )
+#             ax_ring.legend()
+#
+#             if xs is not None and ys is not None:
+#                 xs_ring, ys_ring = xs[r_bin_filter], ys[r_bin_filter]
+#                 ax_xy.scatter(xs_ring, ys_ring, alpha=0.2)
+#
+#     if plot:
+#         fig, ax = plt.subplots(figsize=(8, 5))
+#         r_bin_width = rings[1] - rings[0]
+#         ax.errorbar(r_bin_centers, [x.val for x in time_resolutions], yerr=[x.err for x in time_resolutions],
+#                     xerr=r_bin_width / 2, marker='o', color='black', ls='none')
+#         ax.set_xlabel('Radial Distance from Pad Center [mm]')
+#         ax.set_ylabel('Time Resolution [ps]')
+#         ax.set_ylim(bottom=0)
+#
+#         fig, ax = plt.subplots(figsize=(8, 5))
+#         r_bin_width = rings[1] - rings[0]
+#         ax.errorbar(r_bin_centers, [x.val for x in mean_sats], yerr=[x.err for x in mean_sats],
+#                     xerr=r_bin_width / 2, marker='o', color='black', ls='none')
+#         ax.set_xlabel('Radial Distance from Pad Center [mm]')
+#         ax.set_ylabel('SAT [ps]')
+#
+#     return r_bin_centers, time_resolutions, mean_sats
+
 def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), xs=None, ys=None, plot=False):
 
     if plot:
@@ -799,8 +888,18 @@ def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(Non
 
         if plot:
             fig_ring, ax_ring = plt.subplots(figsize=(8, 5))
-            ax_ring.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
-                   label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
+            # ax_ring.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
+            #        label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
+
+            # Poisson error (sqrt of counts)
+            yerr = np.where(time_hist > 0, np.sqrt(time_hist), 1)
+
+            # Only plot bins with non-zero entries
+            mask_nonzero = time_hist > 0
+            ax_ring.errorbar(time_diff_bin_centers[mask_nonzero], time_hist[mask_nonzero],
+                             yerr=yerr[mask_nonzero], fmt='o', color='black',
+                             label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
+
             fit_str = rf'$A = {fit_meases[0]}$' + '\n' + rf'$\mu = {fit_meases[1]}$' + '\n' + rf'$\sigma = {fit_meases[2]}$'
             ax_ring.plot(time_diff_bin_centers, gaus(time_diff_bin_centers, *[par.val for par in fit_meases]), color='red', label='Fit')
             ax_ring.set_xlabel('SAT [ns]')
@@ -833,6 +932,7 @@ def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(Non
         ax.set_ylabel('SAT [ps]')
 
     return r_bin_centers, time_resolutions, mean_sats
+
 
 
 def get_charge_scan(time_diffs, charges, charge_bins, ns_to_ps=False, time_diff_lims=None, min_events=100, percentile_cuts=(None, None), plot=False):
@@ -1038,9 +1138,12 @@ def fit_time_diffs(time_diffs, n_bins=100, min_events=100):
     hist, bin_edges = np.histogram(time_diffs, bins=n_bins)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
+    hist_err = np.where(hist > 0, np.sqrt(hist), 1)  # Assume not negative!
+
     try:
         p0 = [np.max(hist), np.mean(time_diffs), np.std(time_diffs)]
-        popt, pcov = cf(gaus, bin_centers, hist, p0=p0)
+        # popt, pcov = cf(gaus, bin_centers, hist, p0=p0)
+        popt, pcov = cf(gaus, bin_centers, hist, p0=p0, sigma=hist_err, absolute_sigma=True)
         popt[2] = abs(popt[2])  # Ensure sigma is positive
         perr = np.sqrt(np.diag(pcov))
         meases = [Measure(val, err) for val, err in zip(popt, perr)]
