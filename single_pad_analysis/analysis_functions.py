@@ -703,6 +703,8 @@ def make_percentile_cuts(data, percentile_cuts=(None,None), return_what='data'):
     elif percentile_cuts[1] is not None:
         high_percentile = np.percentile(data, percentile_cuts[1])
         percentile_filter = data < high_percentile
+    else:
+        return data
 
     if return_what == 'filter':
         return percentile_filter
@@ -720,7 +722,7 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
 
     resolutions, means, events = [], [], []
     for x, y in xy_pairs:
-        print(f'Circle Scan: ({x}, {y})')
+        # print(f'Circle Scan: ({x}, {y})')
         rs = np.sqrt((xs - x) ** 2 + (ys - y) ** 2)
         mask = rs < radius
         time_diffs_bin = time_diffs[mask]
@@ -831,6 +833,51 @@ def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(Non
         ax.set_ylabel('SAT [ps]')
 
     return r_bin_centers, time_resolutions, mean_sats
+
+
+def get_charge_scan(time_diffs, charges, charge_bins, ns_to_ps=False, time_diff_lims=None, min_events=100, percentile_cuts=(None, None), plot=False):
+    if ns_to_ps:
+        time_diffs = time_diffs * 1000
+    if time_diff_lims is not None:
+        if ns_to_ps:
+            time_diff_lims = np.array(time_diff_lims) * 1000
+        time_diffs[(time_diffs < time_diff_lims[0]) | (time_diffs > time_diff_lims[1])] = np.nan
+
+    resolutions, means, events = [], [], []
+    for charge_bin in charge_bins:
+        charge_bin_low, charge_bin_high = charge_bin
+        # print(f'Charge Scan: ({charge_bin_low} - {charge_bin_low})')
+        mask = (charge_bin_low <= charges) & (charges < charge_bin_high)
+        time_diffs_bin = time_diffs[mask]
+        time_diffs_bin = np.array(time_diffs_bin[~np.isnan(time_diffs_bin)])
+
+        time_diffs_bin = make_percentile_cuts(time_diffs_bin, percentile_cuts)
+
+        n_events = time_diffs_bin.size
+
+        hist_bin, bin_edges = np.histogram(time_diffs_bin, bins=100)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        fit_meases = fit_time_diffs(time_diffs_bin, n_bins=100, min_events=min_events)
+        resolutions.append(fit_meases[2])
+        means.append(fit_meases[1])
+        events.append(n_events)
+
+        if plot:
+            fig, ax = plt.subplots()
+            ax.bar(bin_centers, hist_bin, width=bin_edges[1] - bin_edges[0], align='center', alpha=0.5)
+            x_plt = np.linspace(bin_centers[0], bin_centers[-1], 200)
+            ax.plot(x_plt, gaus(x_plt, *[par.val for par in fit_meases]), color='red')
+            ax.set_title(f'Charge Scan: ({charge_bin_low} - {charge_bin_low})')
+            ax.set_xlabel('SAT [ps]')
+            ax.set_ylabel('Counts')
+            time_unit = 'ps' if ns_to_ps else 'ns'
+            fit_str = f'Fit:\nEvents={n_events}\nA={fit_meases[0]}\nμ={fit_meases[1]} {time_unit}\nσ={fit_meases[2]} {time_unit}'
+            ax.annotate(fit_str, xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top',
+                        bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow'))
+            fig.tight_layout()
+
+    return resolutions, means, events
 
 
 def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, radius=None):
@@ -1000,6 +1047,13 @@ def fit_time_diffs(time_diffs, n_bins=100, min_events=100):
         return meases
     except RuntimeError:
         return meases
+
+
+def write_pad_param_file(pad_param_dir, run_number, pool_number, pad_channel, param_dict):
+    file_path = f'{pad_param_dir}/Run{run_number}-Pool{pool_number}-{pad_channel}.txt'
+    with open(file_path, 'w') as file:
+        for key, value in param_dict.items():
+            file.write(f'{key} = {value}\n')
 
 def gaus(x, a, mu, sigma):
     return a * np.exp(-(x-mu)**2/(2*sigma**2))
