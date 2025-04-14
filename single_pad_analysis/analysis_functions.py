@@ -1,3 +1,5 @@
+
+import os
 import pandas as pd
 import uproot
 import numpy as np
@@ -1049,11 +1051,43 @@ def fit_time_diffs(time_diffs, n_bins=100, min_events=100):
         return meases
 
 
-def write_pad_param_file(pad_param_dir, run_number, pool_number, pad_channel, param_dict):
-    file_path = f'{pad_param_dir}/Run{run_number}-Pool{pool_number}-{pad_channel}.txt'
-    with open(file_path, 'w') as file:
-        for key, value in param_dict.items():
-            file.write(f'{key} = {value}\n')
+def update_pad_centers_csv(csv_path, run_number, pool_number, channel,
+                           x_center, x_center_err, y_center, y_center_err):
+    # Create a DataFrame from the new data
+    new_row = {
+        "run_number": run_number,
+        "pool_number": pool_number,
+        "channel_number": channel,
+        "x_center": x_center,
+        "x_center_err": x_center_err,
+        "y_center": y_center,
+        "y_center_err": y_center_err
+    }
+
+    # If the CSV exists, load and update it
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path)
+
+        # Check if row with the same identifiers exists
+        mask = (
+            (df["run_number"] == run_number) &
+            (df["pool_number"] == pool_number) &
+            (df["channel_number"] == channel)
+        )
+
+        if mask.any():
+            df.loc[mask, ["x_center", "x_center_err", "y_center", "y_center_err"]] = [
+                x_center, x_center_err, y_center, y_center_err
+            ]
+        else:
+            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    else:
+        # Create new DataFrame if CSV does not exist
+        df = pd.DataFrame([new_row])
+
+    # Save the updated DataFrame
+    df.to_csv(csv_path, index=False)
+
 
 def gaus(x, a, mu, sigma):
     return a * np.exp(-(x-mu)**2/(2*sigma**2))
