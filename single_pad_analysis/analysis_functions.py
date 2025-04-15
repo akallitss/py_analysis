@@ -119,10 +119,11 @@ def make_chi2_cut_tracks(df, channels, chi2_quality=3, plot=False):
         fig, ax = plt.subplots()
         # ax.hist(chi2track, bins=300, log=True, alpha=0.7, color='blue', edgecolor='black')
         ax.hist(chi2track, bins=300, alpha=0.7, color='blue', edgecolor='black', histtype='stepfilled')
-        ax.set_ylim(top=100)
+        # ax.set_ylim(top=100)
         ax.axvline(chi2_quality, color='red')
 
         ax.set_xlabel('chi2track')
+        ax.set_yscale('log')
         ax.set_ylabel('# of events')
         ax.set_title('Chi2 Track Distribution')
         ax.grid(True, linestyle='--', alpha=0.6)
@@ -133,6 +134,8 @@ def make_chi2_cut_tracks(df, channels, chi2_quality=3, plot=False):
 
     print(f'Original number of events with tracks: {og_events_with_tracks}')
     print(f'After chi2 cut number of events with tracks: {after_events_with_tracks}')
+    print(f'percentage of events sfter cuts chi2: {after_events_with_tracks / og_events_with_tracks * 100:.2f}%')
+    print(f'percentage of events with tracks: {after_events_with_tracks / len(df) * 100:.2f}%')
 
     if plot:
         chi2track_flat = ak.flatten(ak_arrays['chi2track'])
