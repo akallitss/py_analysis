@@ -725,7 +725,6 @@ def relative_distances(xy_pairs, x_center, y_center):
             for x, y in xy_pairs]
 
 
-
 def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, percentile_cuts=(None, None), plot=False):
     if ns_to_ps:
         time_diffs = time_diffs * 1000
@@ -770,83 +769,6 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
 
     return resolutions, means, events
 
-
-# def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), xs=None, ys=None, plot=False):
-#
-#     if plot:
-#         if xs is not None and ys is not None:
-#             fig, axs = plt.subplots(ncols=2, figsize=(12, 8))
-#             ax, ax_xy = axs
-#             ax_xy.set_xlabel('X [mm]')
-#             ax_xy.set_ylabel('Y [mm]')
-#         else:
-#             fig, ax = plt.subplots(figsize=(8, 5))
-#         ax.scatter(rs, time_diff_cor, alpha=0.2)
-#         ax.set_xlabel('Radial Distance from Pad Center [mm]')
-#         ax.set_ylabel('SAT [ns]')
-#         for r_bin_edge in rings:
-#             ax.axvline(r_bin_edge, color='red')
-#             ax.set_xlim(0, 10)
-#             ax.set_ylim(-2, 2)
-#
-#             if xs is not None and ys is not None:
-#                 pass
-#                 # Make circle patch at r_bin_edge
-#                 # ax_xy.add_patch(plt.Circle((center_x, center_y), r_bin_edge, color='red', fill=False, alpha=0.5))
-#
-#     time_diff_binning = 100
-#     r_bin_centers, time_resolutions, mean_sats = [], [], []
-#     for r_bin_edge in rings:
-#         r_bin_upper_edge = r_bin_edge + ring_bin_width
-#         r_bin_filter = (rs > r_bin_edge) & (rs <= r_bin_upper_edge)
-#         time_diffs_r_bin = time_diff_cor[r_bin_filter]
-#
-#         time_diffs_r_bin = make_percentile_cuts(time_diffs_r_bin, percentile_cuts)
-#
-#         time_hist, bin_edges = np.histogram(time_diffs_r_bin, bins=time_diff_binning)
-#         time_diff_bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-#
-#         fit_meases = fit_time_diffs(time_diffs_r_bin, n_bins=time_diff_binning, min_events=100)
-#         mean_sats.append(fit_meases[1]*1e3)
-#         time_resolutions.append(fit_meases[2] * 1e3)
-#         r_bin_centers.append((r_bin_edge + r_bin_upper_edge) / 2)
-#
-#         if plot:
-#             fig_ring, ax_ring = plt.subplots(figsize=(8, 5))
-#             ax_ring.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
-#                    label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
-#             fit_str = rf'$A = {fit_meases[0]}$' + '\n' + rf'$\mu = {fit_meases[1]}$' + '\n' + rf'$\sigma = {fit_meases[2]}$'
-#             ax_ring.plot(time_diff_bin_centers, gaus(time_diff_bin_centers, *[par.val for par in fit_meases]), color='red', label='Fit')
-#             ax_ring.set_xlabel('SAT [ns]')
-#             ax_ring.annotate(
-#             fit_str,
-#             xy=(0.1, 0.9), xycoords='axes fraction',
-#             ha='left', va='top',
-#             bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow')
-#             )
-#             ax_ring.legend()
-#
-#             if xs is not None and ys is not None:
-#                 xs_ring, ys_ring = xs[r_bin_filter], ys[r_bin_filter]
-#                 ax_xy.scatter(xs_ring, ys_ring, alpha=0.2)
-#
-#     if plot:
-#         fig, ax = plt.subplots(figsize=(8, 5))
-#         r_bin_width = rings[1] - rings[0]
-#         ax.errorbar(r_bin_centers, [x.val for x in time_resolutions], yerr=[x.err for x in time_resolutions],
-#                     xerr=r_bin_width / 2, marker='o', color='black', ls='none')
-#         ax.set_xlabel('Radial Distance from Pad Center [mm]')
-#         ax.set_ylabel('Time Resolution [ps]')
-#         ax.set_ylim(bottom=0)
-#
-#         fig, ax = plt.subplots(figsize=(8, 5))
-#         r_bin_width = rings[1] - rings[0]
-#         ax.errorbar(r_bin_centers, [x.val for x in mean_sats], yerr=[x.err for x in mean_sats],
-#                     xerr=r_bin_width / 2, marker='o', color='black', ls='none')
-#         ax.set_xlabel('Radial Distance from Pad Center [mm]')
-#         ax.set_ylabel('SAT [ps]')
-#
-#     return r_bin_centers, time_resolutions, mean_sats
 
 def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), xs=None, ys=None, plot=False):
 
