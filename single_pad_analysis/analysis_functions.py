@@ -523,7 +523,7 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
 
     if plot:
         fig, ax = plt.subplots(figsize=(8, 5))
-        binning_t20_diff = np.arange(0, 15, 0.1)
+        binning_t20_diff = np.arange(-5, 15, 0.1)
         ax.hist(time_diff, bins=binning_t20_diff)
         ax.set_xlabel('SAT Raw [ns]')
 
