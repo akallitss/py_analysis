@@ -35,6 +35,11 @@ class HexDetector:
     def set_rotation(self, rotation):
         self.rotation = rotation
 
+    def set_center(self, x, y):
+        """Set the center of the detector."""
+        self.x = x
+        self.y = y
+
     def add_pad(self, reference_pad_index=None, dx_index=1, dy_index=0):
         """Tile a new pad from an existing reference pad. If reference_pad_index is None,
         add the first pad at the origin. dx_index and dy_index define the position of the new pad.
@@ -78,9 +83,13 @@ class HexDetector:
         rotated_y = sin_theta * pad.x + cos_theta * pad.y
         return rotated_x + self.x, rotated_y + self.y
 
-    def plot_detector(self, global_coords=False):
+    def plot_detector(self, global_coords=False, ax_in=None, zorder=10, pad_color='lightblue', pad_alpha=0.5):
         """Plot the hexagonal detector layout using matplotlib."""
-        fig, ax = plt.subplots()
+        if ax_in is None:
+            fig, ax = plt.subplots()
+        else:
+            ax = ax_in
+
         for i, pad in enumerate(self.hex_pads):
             if global_coords:
                 x, y = self.get_pad_center(i)
@@ -89,17 +98,18 @@ class HexDetector:
                 x, y = pad.x, pad.y
                 rotation = 0
             hexagon = plt.Polygon(hexagon_vertices(x, y, self.pad_inner_radii, rotation), edgecolor='black',
-                                  facecolor='lightblue', alpha=0.5)
+                                  facecolor=pad_color, alpha=pad_alpha, zorder=zorder)
             ax.add_patch(hexagon)
-            ax.scatter(x, y, s=1, color='black')
+            ax.scatter(x, y, s=1, color='black', zorder=zorder)
 
-        ax.set_aspect('equal')
-        extra_scale = 1.2
-        ax.set_xlim(min(p.x for p in self.hex_pads) - hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.x if global_coords else 0),
-                    max(p.x for p in self.hex_pads) + hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.x if global_coords else 0))
-        ax.set_ylim(min(p.y for p in self.hex_pads) - hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.y if global_coords else 0),
-                    max(p.y for p in self.hex_pads) + hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.y if global_coords else 0))
-        plt.show()
+        if ax_in is None:
+            ax.set_aspect('equal')
+            extra_scale = 1.2
+            ax.set_xlim(min(p.x for p in self.hex_pads) - hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.x if global_coords else 0),
+                        max(p.x for p in self.hex_pads) + hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.x if global_coords else 0))
+            ax.set_ylim(min(p.y for p in self.hex_pads) - hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.y if global_coords else 0),
+                        max(p.y for p in self.hex_pads) + hex_radius_inner_to_outer(self.pad_inner_radii) * extra_scale + (self.y if global_coords else 0))
+            plt.show()
 
     def __repr__(self):
         return f"HexDetector with {len(self.hex_pads)} pads:\n" + "\n".join(map(str, self.hex_pads))
