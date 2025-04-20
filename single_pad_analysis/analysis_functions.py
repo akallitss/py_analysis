@@ -473,7 +473,7 @@ def gaus(x, a, mu, sigma):
 def line(x, a, b):
     return a*x + b
 
-def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, percentile_cut=(None, None), binning_type='equal_stats', plot=False, plot_indiv_fits=False):
+def get_time_walk(time_diff, charges, time_walk_func, time_walk_p0, percentile_cut=(None, None), binning_type='equal_stats', n_bins =100, plot=False, plot_indiv_fits=False):
     """
     Get time walk correction for a given channel
     Parameters:
@@ -482,11 +482,38 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
         time_walk_func (function): The time walk function to fit
         time_walk_p0 (list): Initial parameters for the time walk function
         binning_type (str): Type of binning for the time walk correction
+        n_bins (int): Number of bins for the time walk correction
         percentile_cut (tuple): Percentile cut for the time difference
-        plot (bool): Whether to plot the results
+        plot (bool): Plot the time walk correction
+        plot_indiv_fits (bool): Plot individual fits if True
     Returns:
         tuple(Measure, Measure): Tuple of Measure objects representing the x and y pad center estimates
     """
+
+    charges, time_diff = filter_sort_charges_time_diffs(time_diff, charges)
+    avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned(time_diff, charges,
+                                                                                                       binning_type, n_bins,
+                                                                                                       percentile_cut,
+                                                                                                       plot_indiv_fits)
+
+    pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit = get_time_walk_parameterization(time_diff, charges, time_walk_func,
+                                                                                time_walk_p0, avg_charges, med_time_diffs,
+                                                                                std_err_time_diffs, gaus_means, gaus_mean_errs)
+
+    popt_indiv = [indiv_par.val for indiv_par in pmeas_indiv]
+    popt_dyn_bin = [dyn_par.val for dyn_par in pmeas_dyn_bin]
+    popt_gaus_fits = [gaus_par.val for gaus_par in pmeas_gaus_fit]
+
+    if plot:
+        get_time_walk_correction_plot(time_diff, charges, time_walk_func, time_walk_p0, avg_charges, med_time_diffs,
+                                      std_err_time_diffs, gaus_means, gaus_mean_errs, popt_indiv, popt_dyn_bin,
+                                      popt_gaus_fits)
+
+    return pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit
+
+
+
+def filter_sort_charges_time_diffs(time_diff, charges):
     time_diff_na_filter = ~pd.isna(time_diff) & ~pd.isna(charges)
 
     time_diff = np.array(time_diff[time_diff_na_filter])
@@ -495,133 +522,36 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
     sorted_indices = np.argsort(charges)
     charges, time_diff = charges[sorted_indices], time_diff[sorted_indices]
 
+    return charges, time_diff
+
+
+def filter_sort_charges_time_diffs_rs(time_diff, charges, rs):
+    time_diff_na_filter = ~pd.isna(time_diff) & ~pd.isna(charges) & ~pd.isna(rs)
+
+    time_diff = np.array(time_diff[time_diff_na_filter])
+    charges = np.array(charges[time_diff_na_filter])
+    rs = np.array(rs[time_diff_na_filter])
+
+    sorted_indices = np.argsort(charges)
+    charges, time_diff, rs = charges[sorted_indices], time_diff[sorted_indices], rs[sorted_indices]
+
+    return charges, time_diff, rs
+
+
+def get_time_walk_binned(time_diff, charges, binning_type, n_bins, percentile_cut, plot_indiv_fits=False):
     # avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned(time_diff, charges)
-    avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = get_time_walk_binned_better(time_diff, charges, 100, binning_type, percentile_cut, plot_indiv_fits)
-
-    try:
-        popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
-        pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
-    except RuntimeError as e:
-        print(f"Error fitting individual points: {e}")
-        popt_indiv, pcov_indiv, pmeas_indiv = None, None, None
-
-    try:
-        popt_dyn_bin, pcov_dyn_bin = cf(time_walk_func, avg_charges, med_time_diffs, sigma=std_err_time_diffs,
-                                    absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
-        pmeas_dyn_bin = [Measure(val, err) for val, err in zip(popt_dyn_bin, np.sqrt(np.diag(pcov_dyn_bin)))]
-    except RuntimeError as e:
-        print(f"Error fitting dynamic bin: {e}")
-        popt_dyn_bin, pcov_dyn_bin, pmeas_dyn_bin = None, None, None
-
-    try:
-        popt_gaus_fits, pcov_gaus_fits = cf(time_walk_func, avg_charges, gaus_means, sigma=gaus_mean_errs,
-                                        absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
-        pmeas_gaus_fit = [Measure(val, err) for val, err in zip(popt_gaus_fits, np.sqrt(np.diag(pcov_gaus_fits)))]
-    except RuntimeError as e:
-        print(f"Error fitting Gaussian fits: {e}")
-        popt_gaus_fits, pcov_gaus_fits, pmeas_gaus_fit = None, None, None
-
-    if plot:
-        fig, ax = plt.subplots(figsize=(8, 5))
-        binning_t20_diff = np.arange(-5, 15, 0.1)
-        ax.hist(time_diff, bins=binning_t20_diff)
-        ax.set_xlabel('SAT Raw [ns]')
+    avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = bin_data_fit(time_diff,
+                                                                                               charges,
+                                                                                               n_bins,
+                                                                                               binning_type,
+                                                                                               percentile_cut,
+                                                                                               plot_indiv_fits)
+    return avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs
 
 
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(charges, time_walk_func(charges, *time_walk_p0), color='gray', alpha=0.2)
-        if popt_indiv is not None:
-            ax.plot(charges, time_walk_func(charges, *popt_indiv), color='red', ls='--')
-        ax.scatter(charges, time_diff, alpha=0.5)
-        ax.set_ylim(np.percentile(time_diff, 1), np.percentile(time_diff, 99))
-        ax.set_xlabel('Charge [pC]')
-        ax.set_ylabel('SAT Individual [ns]')
-
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.errorbar(avg_charges, med_time_diffs, yerr=std_err_time_diffs, fmt='.', color='black',
-                    label='Average charges')
-        if popt_dyn_bin is not None:
-            ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), ls='--', color='red', label='Dynamic bin')
-        ax.set_xlabel('Total Charge [pC]')
-        ax.set_ylabel('SAT Medians [ns]')
 
 
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.errorbar(avg_charges, gaus_means, yerr=gaus_mean_errs, fmt='.', color='black', label='Average charges')
-        if popt_gaus_fits is not None:
-            ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), ls='--', color='red', label='Dynamic bin')
-        ax.set_xlabel('Total Charge [pC]')
-        ax.set_ylabel('SAT Gaussian [ns]')
-
-
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.scatter(charges, time_diff, alpha=0.2)
-        if popt_dyn_bin is not None:
-            ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), color='red', ls='--', label='Median of Bin Fit')
-        if popt_gaus_fits is not None:
-            ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), color='green', ls='--', label='Gaus Fit of Bin Fit')
-        if popt_indiv is not None:
-            ax.plot(charges, time_walk_func(charges, *popt_indiv), color='blue', ls='--', label='Individual Point Fit')
-        ax.set_xlabel('Charge [pC]')
-        ax.set_ylabel('SAT Raw [ns]')
-        ax.set_ylim(np.percentile(time_diff, 1), np.percentile(time_diff, 99))
-        ax.legend()
-
-    return pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit
-
-
-# def get_time_walk_binned(time_diff, charges, n_bins=100, plot=False):
-#     n_event_bins = int(len(charges) / n_bins)
-#     print('n_event_bins:', n_event_bins)
-#     n_gaus_bins = 10
-#     bin_start = 0
-#     avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = [], [], [], [], []
-#     while bin_start < len(charges) - 1:
-#         bin_end = bin_start + n_event_bins
-#         if bin_end > len(charges):
-#             bin_end = len(charges) - 1
-#             print(f'{bin_end - bin_start} points in the last bin')
-#         bin_charges = charges[bin_start:bin_end]
-#         bin_time_diffs = time_diff[bin_start:bin_end]
-#         avg_charges.append(np.mean(bin_charges))
-#         med_time_diffs.append(np.median(bin_time_diffs))
-#         std_err = np.std(bin_time_diffs) / np.sqrt(len(bin_time_diffs)) if len(bin_time_diffs) > 0 else np.nan
-#         std_err = std_err if std_err > 0 else 1
-#         std_err_time_diffs.append(std_err)
-#
-#         bin_time_diff_hist, bin_time_diff_charge_bin_edges = np.histogram(bin_time_diffs, bins=n_gaus_bins)
-#         bin_time_diff_charge_bin_centers = (bin_time_diff_charge_bin_edges[1:] + bin_time_diff_charge_bin_edges[
-#                                                                                  :-1]) / 2
-#         p0_gaus_bin = [np.max(bin_time_diff_hist), np.mean(bin_time_diffs), np.std(bin_time_diffs)]
-#         try:
-#             popt_gaus_bin, pcov_gaus_bin = cf(gaus, bin_time_diff_charge_bin_centers, bin_time_diff_hist,
-#                                               p0=p0_gaus_bin, maxfev=10000)
-#             perr_gaus_bin = np.sqrt(np.diag(pcov_gaus_bin))
-#
-#             if plot:
-#                 fig, ax = plt.subplots(figsize=(8, 5))
-#                 bin_time_diff_charg_bin_widths = np.diff(bin_time_diff_charge_bin_edges)
-#                 ax.bar(bin_time_diff_charge_bin_centers, bin_time_diff_hist, width=bin_time_diff_charg_bin_widths,
-#                        color='black')
-#                 x_plot = np.linspace(bin_time_diff_charge_bin_edges[0], bin_time_diff_charge_bin_edges[-1], 200)
-#                 ax.plot(x_plot, gaus(x_plot, *p0_gaus_bin), color='gray', alpha=0.2)
-#                 ax.plot(x_plot, gaus(x_plot, *popt_gaus_bin), color='red')
-#                 ax.set_title(f'Fit from {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
-#
-#             gaus_means.append(popt_gaus_bin[1])
-#             gaus_mean_errs.append(perr_gaus_bin[1])
-#
-#         except RuntimeError:
-#             print(f'gaus_bin_hist failed for bin {charges[bin_start]:.2f} pC to {charges[bin_end]:2f} pC')
-#             gaus_means.append(p0_gaus_bin[1])
-#             gaus_mean_errs.append(p0_gaus_bin[1])
-#
-#         bin_start = bin_end
-#
-#     return avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs
-
-
-def get_time_walk_binned_better(time_diff, charges, n_bins=100, binning_type='equal_steps', percentile_cut=(None, None), plot=False):
+def bin_data_fit(time_diff, charges, n_bins, binning_type='equal_steps', percentile_cut=(None, None), plot=False):
     if binning_type == 'equal_stats':
         print(f'n_event_bins: {int(len(charges) / n_bins)}')
         charge_bin_edges = np.percentile(charges, np.linspace(0, 100, n_bins + 1))
@@ -637,6 +567,7 @@ def get_time_walk_binned_better(time_diff, charges, n_bins=100, binning_type='eq
 
     avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs = [], [], [], [], []
     for i in range(n_bins):
+        # print(f'bin {i} of {n_bins}')
         bin_charge_min, bin_charge_max = charge_bin_edges[i], charge_bin_edges[i + 1]
         charges_filter = (charges > bin_charge_min) & (charges < bin_charge_max)
         bin_charges = charges[charges_filter]
@@ -691,6 +622,136 @@ def get_time_walk_binned_better(time_diff, charges, n_bins=100, binning_type='eq
         gaus_mean_errs.append(gaus_mean_err)
 
     return avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs
+
+
+def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs):
+
+
+    try:
+        popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
+        pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
+    except RuntimeError as e:
+        print(f"Error fitting individual points: {e}")
+        popt_indiv, pcov_indiv, pmeas_indiv = None, None, None
+
+    try:
+        popt_dyn_bin, pcov_dyn_bin = cf(time_walk_func, avg_charges, med_time_diffs, sigma=std_err_time_diffs,
+                                    absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
+        pmeas_dyn_bin = [Measure(val, err) for val, err in zip(popt_dyn_bin, np.sqrt(np.diag(pcov_dyn_bin)))]
+    except RuntimeError as e:
+        print(f"Error fitting dynamic bin: {e}")
+        popt_dyn_bin, pcov_dyn_bin, pmeas_dyn_bin = None, None, None
+
+    try:
+        popt_gaus_fits, pcov_gaus_fits = cf(time_walk_func, avg_charges, gaus_means, sigma=gaus_mean_errs,
+                                        absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
+        pmeas_gaus_fit = [Measure(val, err) for val, err in zip(popt_gaus_fits, np.sqrt(np.diag(pcov_gaus_fits)))]
+        print(f'gaus fit measures = {pmeas_gaus_fit}')
+    except RuntimeError as e:
+        print(f"Error fitting Gaussian fits: {e}")
+        popt_gaus_fits, pcov_gaus_fits, pmeas_gaus_fit = None, None, None
+
+    return pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit
+
+
+def get_time_walk_correction_plot(time_diff, charges, time_walk_func, time_walk_p0, avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs, popt_indiv, popt_dyn_bin, popt_gaus_fits):
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    binning_t20_diff = np.arange(-5, 15, 0.1)
+    ax.hist(time_diff, bins=binning_t20_diff)
+    ax.set_xlabel('SAT Raw [ns]')
+
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(charges, time_walk_func(charges, *time_walk_p0), color='gray', alpha=0.2)
+    # if popt_indiv is not None:
+    #     ax.plot(charges, time_walk_func(charges, *popt_indiv), color='red', ls='--')
+    ax.scatter(charges, time_diff, alpha=0.5)
+    ax.set_ylim(np.percentile(time_diff, 1), np.percentile(time_diff, 99))
+    ax.set_xlabel('Charge [pC]')
+    ax.set_ylabel('SAT Individual [ns]')
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.errorbar(avg_charges, med_time_diffs, yerr=std_err_time_diffs, fmt='.', color='black',
+                label='Average charges')
+
+    if popt_dyn_bin is not None:
+        ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), ls='--', color='red', label='Dynamic bin')
+    ax.set_xlabel('Total Charge [pC]')
+    ax.set_ylabel('SAT Medians [ns]')
+
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.errorbar(avg_charges, gaus_means, yerr=gaus_mean_errs, fmt='.', color='black', label='Average charges')
+    if popt_gaus_fits is not None:
+        ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), ls='--', color='red', label='Dynamic bin')
+    ax.set_xlabel('Total Charge [pC]')
+    ax.set_ylabel('SAT Gaussian [ns]')
+
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.scatter(charges, time_diff, alpha=0.2)
+    if popt_dyn_bin is not None:
+        ax.plot(charges, time_walk_func(charges, *popt_dyn_bin), color='red', ls='--', label='Median of Bin Fit')
+    if popt_gaus_fits is not None:
+        ax.plot(charges, time_walk_func(charges, *popt_gaus_fits), color='green', ls='--', label='Gaus Fit of Bin Fit')
+    # if popt_indiv is not None:
+    #     ax.plot(charges, time_walk_func(charges, *popt_indiv), color='blue', ls='--', label='Individual Point Fit')
+    ax.set_xlabel('Charge [pC]')
+    ax.set_ylabel('SAT Raw [ns]')
+    ax.set_ylim(np.percentile(time_diff, 1), np.percentile(time_diff, 99))
+    ax.legend()
+
+
+def get_time_walk_r_separated(time_diff, charges, rs, percentile_cut=(None, None), binning_type='equal_stats', n_bins=100, ylim=None):
+    """
+    Get time walk for a give channel with colors for r regions
+    Parameters:
+        time_diff (list): The time differences between micromegas and mcp
+        charges (list): List of micromegas charges
+        rs (list): List of micromegas rs
+        percentile_cut (tuple): Percentile cut for the time difference
+        binning_type (str): Type of binning for the time walk correction
+        n_bins (int): Number of bins
+        ylim (tuple): Y-axis limits
+    """
+
+    charges, time_diff, rs = filter_sort_charges_time_diffs_rs(time_diff, charges, rs)
+
+    region_masks = {
+        '0-2.5 mm': (rs <= 2.5),
+        '2.5-5 mm': (rs> 2.5) & (rs <= 5),
+        '5-7.5 mm': (rs > 5) & (rs <=7.5),
+        '7.5-10 mm': (rs > 7.5)
+    }
+
+    # Colors for the plot
+    region_colors = {
+        '0-2.5 mm': 'blue',
+        '2.5-5 mm': 'green',
+        '5-7.5 mm': 'red',
+        '7.5-10 mm': 'magenta'
+    }
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for region_label, mask in region_masks.items():
+        region_time_diff = time_diff[mask]
+        region_charges = charges[mask]
+
+        # Skip if region has no valid data
+        if len(region_charges) == 0 or len(region_time_diff) == 0:
+            print(f"Skipping region '{region_label}': no data after mask")
+            continue
+
+        avg_charges, _, _, gaus_means, gaus_stds = get_time_walk_binned(region_time_diff, region_charges, binning_type, n_bins,
+            percentile_cut)
+        ax.errorbar(avg_charges, gaus_means, yerr=gaus_stds, fmt='.', color=region_colors[region_label], label=region_label)
+
+    ax.legend()
+    ax.set_xlabel('Total Charge [pC]')
+    ax.set_ylabel('SAT [ns]')
+    if ylim is not None:
+        ax.set_ylim(ylim[0], ylim[1])
 
 
 def make_percentile_cuts(data, percentile_cuts=(None,None), return_what='data'):
