@@ -69,6 +69,31 @@ def set_matplotlib_style():
     plt.rcParams['axes.titlesize'] = 22
     plt.rcParams['axes.titleweight'] = 'bold'
 
+
+def get_raw_event_data(raw_file_path, event_num, tree_name='RawDataTree'):
+    with uproot.open(raw_file_path) as file:
+        tree = file[tree_name]
+        event_data = tree.arrays(entry_start=event_num, entry_stop=event_num + 1)[0]
+
+    return event_data
+
+
+def find_run_pool_file(search_dir, run_num, pool_num, flag=None):
+    files = os.listdir(search_dir)
+    matches = []
+    for file in files:
+        if f'Run{run_num}' in file and f'Pool{pool_num}' in file:
+            if flag is None or flag in file:
+                matches.append(file)
+
+    if len(matches) == 0:
+        print(f'Could not find file for run {run_num} and pool {pool_num} in {search_dir}')
+        return None
+    elif len(matches) > 1:
+        print(f'{len(matches)} matches found for run {run_num} and pool {pool_num} in {search_dir}. Returning first.')
+    return matches[0]
+
+
 def get_single_peak(df, channel):
     "Extract a single peak for each channel"
     peak_no = 0
@@ -76,6 +101,7 @@ def get_single_peak(df, channel):
     for col in columns:
         if f'peakparam_{channel}/peakparam_{channel}' in col:
             df[col] = df[col].apply(lambda x: x[peak_no] if len(x) > peak_no else np.nan)
+
 
 def get_single_track(df, channel, track_no=None):
     "Extract a single track for each channel"
@@ -1115,6 +1141,35 @@ def update_pad_centers_csv(csv_path, run_number, pool_number, channel,
 
     # Save the updated DataFrame
     df.to_csv(csv_path, index=False)
+
+
+def plot_single_event(df_combined, event_number, raw_data_dir, run_num, pads, hex_detector):
+    df_event = df_combined[df_combined['eventNo'] == event_number].iloc[0]
+
+    fig_det, ax_det = plt.subplots()
+    cmap = plt.get_cmap('jet')
+    pad_tot_charges = {pad.pad_index: df_event[f'totcharge_{pad.pad_index}'] for pad in pads}
+    # max_totcharge = np.nanmax(list(pad_tot_charges.values()))
+    max_totcharge = 100
+    pad_cols = {pad.pad_index: cmap(pad_tot_charges[pad.pad_index] / max_totcharge) for pad in pads}
+    hex_detector.plot_detector(global_coords=True, ax_in=ax_det, pad_alpha=0.2, pad_colors=pad_cols)
+    ax_det.set_aspect('equal')
+    ax_det.scatter(df_event['hitX'], df_event['hitY'], color='red', marker='o', s=100, label='Track')
+
+    fig_waveforms, ax_waveforms = plt.subplots()
+    for i_pad, pad in enumerate(pads):
+        print(f'Pad {pad.pad_index} total charge: {pad_tot_charges[pad.pad_index]}')
+        raw_data_file = find_run_pool_file(raw_data_dir, run_num, pad.pool_num)
+        raw_data_path = f'{raw_data_dir}{raw_data_file}'
+        pool_event_data = get_raw_event_data(raw_data_path, event_number)
+        if i_pad == 0:  # Plot MCP
+            mcp_waveform = np.array(pool_event_data['amplC1'])
+            ax_waveforms.plot(mcp_waveform, label='MCP', color='black')
+        mm_waveform = np.array(pool_event_data[f'ampl{pad.mm_channel}'])
+        ax_waveforms.plot(mm_waveform, label=f'Pad {pad.pad_index}')
+
+    ax_waveforms.legend()
+    ax_waveforms.set_xlim(1900, 2400)
 
 
 def gaus(x, a, mu, sigma):

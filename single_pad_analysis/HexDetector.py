@@ -83,7 +83,7 @@ class HexDetector:
         rotated_y = sin_theta * pad.x + cos_theta * pad.y
         return rotated_x + self.x, rotated_y + self.y
 
-    def plot_detector(self, global_coords=False, ax_in=None, zorder=10, pad_color='lightblue', pad_alpha=0.5):
+    def plot_detector(self, global_coords=False, ax_in=None, zorder=10, pad_colors='lightblue', pad_alpha=0.5):
         """Plot the hexagonal detector layout using matplotlib."""
         if ax_in is None:
             fig, ax = plt.subplots()
@@ -97,6 +97,13 @@ class HexDetector:
             else:
                 x, y = pad.x, pad.y
                 rotation = 0
+            if isinstance(pad_colors, str):
+                pad_color = pad_colors
+            elif isinstance(pad_colors, dict):
+                if i in pad_colors:
+                    pad_color = pad_colors[i]
+                else:
+                    pad_color = 'none'
             hexagon = plt.Polygon(hexagon_vertices(x, y, self.pad_inner_radii, rotation), edgecolor='black',
                                   facecolor=pad_color, alpha=pad_alpha, zorder=zorder)
             ax.add_patch(hexagon)
