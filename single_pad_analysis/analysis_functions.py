@@ -1005,11 +1005,16 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
     # Convert to 2D arrays
     scan_resolutions_2d = np.array(scan_resolution_vals).reshape(len(ys), len(xs))
     scan_means_2d = np.array(scan_mean_val).reshape(len(ys), len(xs))
+    print(f'scan_res min: {np.nanmin(scan_resolution_vals)}, max: {np.nanmax(scan_resolution_vals)}')
+    res_vmin, res_vmax = np.nanmin(scan_resolution_vals), np.nanpercentile(scan_resolution_vals, 95)
+    print(f'res_vmax: {res_vmax}')
+    mean_vmin, mean_vmax = np.nanpercentile(scan_mean_val, 5), np.nanpercentile(scan_mean_val, 95)
+    print(f'mean_vmin: {mean_vmin}, mean_vmax: {mean_vmax}')
 
     # Plot results
     fig, ax = plt.subplots(figsize=(8, 6))
     c = ax.imshow(scan_resolutions_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
-                  cmap="jet")
+                  cmap="jet", vmin=res_vmin, vmax=res_vmax)
     plt.colorbar(c, label="Timing Resolution [ps]")
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
@@ -1017,7 +1022,8 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
 
     # Create the contour plot
     fig, ax = plt.subplots(figsize=(8, 6))
-    contour = ax.contourf(x_mesh, y_mesh, scan_resolutions_2d, levels=50, cmap="jet")
+    levels = np.linspace(res_vmin, res_vmax, 50)
+    contour = ax.contourf(x_mesh, y_mesh, scan_resolutions_2d, levels=levels, cmap="jet")
 
     # Add color bar
     cbar = plt.colorbar(contour)
@@ -1030,7 +1036,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
 
     fig, ax = plt.subplots(figsize=(8, 6))
     c = ax.imshow(scan_means_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
-                  cmap="jet")
+                  cmap="jet", vmin=mean_vmin, vmax=mean_vmax)
     plt.colorbar(c, label="SAT [ps]")
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
@@ -1038,7 +1044,8 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
 
     # Create the contour plot
     fig, ax = plt.subplots(figsize=(8, 6))
-    contour = ax.contourf(x_mesh, y_mesh, scan_means_2d, levels=50, cmap="jet")
+    levels = np.linspace(mean_vmin, mean_vmax, 50)
+    contour = ax.contourf(x_mesh, y_mesh, scan_means_2d, levels=levels, cmap="jet")
 
     # Add color bar
     cbar = plt.colorbar(contour)
@@ -1139,9 +1146,15 @@ def plot_rise_fit_params(df):
     plt.show()
 
 
-def fit_time_diffs(time_diffs, n_bins=100, min_events=100):
+def fit_time_diffs(time_diffs, n_bins=100, min_events=100, nsigma_filter=None):
     time_diffs = np.array(time_diffs)
     time_diffs = time_diffs[~np.isnan(time_diffs)]
+
+    if nsigma_filter is not None:
+        median = np.median(time_diffs)
+        std = np.std(time_diffs)
+        mask = (time_diffs > median - nsigma_filter * std) & (time_diffs < median + nsigma_filter * std)
+        time_diffs = time_diffs[mask]
 
     meases = [Measure(np.nan, np.nan) for _ in range(3)]
 
