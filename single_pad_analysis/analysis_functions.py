@@ -845,14 +845,17 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
 
         if plot:
             fig, ax = plt.subplots()
-            ax.bar(bin_centers, hist_bin, width=bin_edges[1] - bin_edges[0], align='center', alpha=0.5)
+            # ax.bar(bin_centers, hist_bin, width=bin_edges[1] - bin_edges[0], align='center', alpha=0.5)
+            hist_err = np.where(hist_bin > 0, np.sqrt(hist_bin), 1)
+            ax.errorbar(bin_centers, hist_bin, yerr=hist_err, fmt='o', color='black', ls='none', zorder=2)
             x_plt = np.linspace(bin_centers[0], bin_centers[-1], 200)
-            ax.plot(x_plt, gaus(x_plt, *[par.val for par in fit_meases]), color='red')
-            ax.set_title(f'Circle Scan: ({x}, {y})')
+            ax.plot(x_plt, gaus(x_plt, *[par.val for par in fit_meases]), color='red', zorder=4)
+            ax.axhline(0, color='black', alpha=0.5, zorder=0)
+            ax.set_title(f'x={x} mm, y={y}, radius={radius} mm')
             ax.set_xlabel('SAT [ps]')
-            ax.set_ylabel('Counts')
+            ax.set_ylabel('Events')
             time_unit = 'ps' if ns_to_ps else 'ns'
-            fit_str = f'Fit:\nEvents={n_events}\nA={fit_meases[0]}\nμ={fit_meases[1]} {time_unit}\nσ={fit_meases[2]} {time_unit}'
+            fit_str = f'Events={n_events}\nA={fit_meases[0]}\nμ={fit_meases[1]} {time_unit}\nσ={fit_meases[2]} {time_unit}'
             ax.annotate(fit_str, xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top',
                         bbox=dict(boxstyle='round,pad=0.5', edgecolor='black', facecolor='lightyellow'))
             fig.tight_layout()
@@ -994,7 +997,7 @@ def get_charge_scan(time_diffs, charges, charge_bins, ns_to_ps=False, time_diff_
     return resolutions, means, events
 
 
-def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, radius=None):
+def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, radius=None, percentile_filter=(0, 100)):
     radius_str = f' radius={radius:.1f} mm' if radius is not None else ''
 
     scan_resolution_vals = [res.val for res in scan_resolutions]
@@ -1006,9 +1009,9 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
     scan_resolutions_2d = np.array(scan_resolution_vals).reshape(len(ys), len(xs))
     scan_means_2d = np.array(scan_mean_val).reshape(len(ys), len(xs))
     print(f'scan_res min: {np.nanmin(scan_resolution_vals)}, max: {np.nanmax(scan_resolution_vals)}')
-    res_vmin, res_vmax = np.nanmin(scan_resolution_vals), np.nanpercentile(scan_resolution_vals, 95)
+    res_vmin, res_vmax = np.nanmin(scan_resolution_vals), np.nanpercentile(scan_resolution_vals, percentile_filter[1])
     print(f'res_vmax: {res_vmax}')
-    mean_vmin, mean_vmax = np.nanpercentile(scan_mean_val, 5), np.nanpercentile(scan_mean_val, 95)
+    mean_vmin, mean_vmax = np.nanpercentile(scan_mean_val, percentile_filter[0]), np.nanpercentile(scan_mean_val, percentile_filter[1])
     print(f'mean_vmin: {mean_vmin}, mean_vmax: {mean_vmax}')
 
     # Plot results
@@ -1244,6 +1247,37 @@ def plot_single_event(df_combined, event_number, raw_data_dir, run_num, pads, he
 
     ax_waveforms.legend()
     ax_waveforms.set_xlim(1900, 2400)
+
+
+def rotate_points(x, y, angle_rad, center_x=0.0, center_y=0.0):
+    """
+    Rotate points (x, y) about (center_x, center_y) by angle_rad (radians).
+
+    Parameters:
+        x, y: arrays or lists of x and y coordinates
+        angle_rad: rotation angle in radians
+        center_x, center_y: coordinates of the center of rotation
+
+    Returns:
+        x_rot, y_rot: rotated x and y coordinates
+    """
+
+    # Translate points to origin
+    x_shifted = x - center_x
+    y_shifted = y - center_y
+
+    # Rotation matrix
+    cos_theta = np.cos(angle_rad)
+    sin_theta = np.sin(angle_rad)
+
+    x_rot = cos_theta * x_shifted - sin_theta * y_shifted
+    y_rot = sin_theta * x_shifted + cos_theta * y_shifted
+
+    # Translate back to the center
+    # x_rot += center_x
+    # y_rot += center_y
+
+    return x_rot, y_rot
 
 
 def gaus(x, a, mu, sigma):
