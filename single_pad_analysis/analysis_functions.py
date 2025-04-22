@@ -785,14 +785,14 @@ def make_percentile_cuts(data, percentile_cuts=(None,None), return_what='data'):
         return data
 
     if percentile_cuts[0] is not None and percentile_cuts[1] is not None:
-        low_percentile = np.percentile(data, percentile_cuts[0])
-        high_percentile = np.percentile(data, percentile_cuts[1])
+        low_percentile = np.nanpercentile(data, percentile_cuts[0])
+        high_percentile = np.nanpercentile(data, percentile_cuts[1])
         percentile_filter = (data > low_percentile) & (data < high_percentile)
     elif percentile_cuts[0] is not None:
-        low_percentile = np.percentile(data, percentile_cuts[0])
+        low_percentile = np.nanpercentile(data, percentile_cuts[0])
         percentile_filter = data > low_percentile
     elif percentile_cuts[1] is not None:
-        high_percentile = np.percentile(data, percentile_cuts[1])
+        high_percentile = np.nanpercentile(data, percentile_cuts[1])
         percentile_filter = data < high_percentile
     else:
         return data
