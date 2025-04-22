@@ -815,7 +815,7 @@ def relative_distances(xy_pairs, x_center, y_center):
             for x, y in xy_pairs]
 
 
-def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, percentile_cuts=(None, None), plot=False):
+def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, nbins=100, percentile_cuts=(None, None), plot=False):
     if ns_to_ps:
         time_diffs = time_diffs * 1000
     if time_diff_lims is not None:
@@ -835,10 +835,10 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
 
         n_events = time_diffs_bin.size
 
-        hist_bin, bin_edges = np.histogram(time_diffs_bin, bins=100)
+        hist_bin, bin_edges = np.histogram(time_diffs_bin, bins=nbins)
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-        fit_meases = fit_time_diffs(time_diffs_bin, n_bins=100, min_events=min_events)
+        fit_meases = fit_time_diffs(time_diffs_bin, n_bins=nbins, min_events=min_events)
         resolutions.append(fit_meases[2])
         means.append(fit_meases[1])
         events.append(n_events)
