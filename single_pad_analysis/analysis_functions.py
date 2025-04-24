@@ -815,7 +815,8 @@ def relative_distances(xy_pairs, x_center, y_center):
             for x, y in xy_pairs]
 
 
-def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, nbins=100, percentile_cuts=(None, None), plot=False):
+def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, nbins=100, percentile_cuts=(None, None), nsigma_filter=None, plot=False):
+
     if ns_to_ps:
         time_diffs = time_diffs * 1000
     if time_diff_lims is not None:
@@ -835,18 +836,21 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
 
         n_events = time_diffs_bin.size
 
-        hist_bin, bin_edges = np.histogram(time_diffs_bin, bins=nbins)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-        fit_meases = fit_time_diffs(time_diffs_bin, n_bins=nbins, min_events=min_events)
+        fit_meases, hist_bin, bin_centers, hist_err = fit_time_diffs(time_diffs_bin, n_bins=nbins, min_events=min_events,
+                                                                     nsigma_filter=nsigma_filter, return_hist=True)
+
         resolutions.append(fit_meases[2])
         means.append(fit_meases[1])
         events.append(n_events)
 
+        # hist_bin, bin_edges = np.histogram(time_diffs_bin, bins=100)
+        # bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
         if plot:
             fig, ax = plt.subplots()
             # ax.bar(bin_centers, hist_bin, width=bin_edges[1] - bin_edges[0], align='center', alpha=0.5)
-            hist_err = np.where(hist_bin > 0, np.sqrt(hist_bin), 1)
+            # hist_err = np.where(hist_bin > 0, np.sqrt(hist_bin), 1)
             ax.errorbar(bin_centers, hist_bin, yerr=hist_err, fmt='o', color='black', ls='none', zorder=2)
             x_plt = np.linspace(bin_centers[0], bin_centers[-1], 200)
             ax.plot(x_plt, gaus(x_plt, *[par.val for par in fit_meases]), color='red', zorder=4)
@@ -997,6 +1001,23 @@ def get_charge_scan(time_diffs, charges, charge_bins, ns_to_ps=False, time_diff_
     return resolutions, means, events
 
 
+def get_circle_efficiency_scan(hits, xs, ys, xy_pairs, radius=1, min_events=100):
+    efficiencies, events = [], []
+    for x, y in xy_pairs:
+        rs = np.sqrt((xs - x) ** 2 + (ys - y) ** 2)
+        mask = rs < radius
+        hits_bin = hits[mask]
+        efficiency = np.mean(hits_bin)
+
+        n_events = hits_bin.size
+        if n_events < min_events:
+            efficiency = np.nan
+
+        efficiencies.append(efficiency)
+        events.append(n_events)
+    return efficiencies, events
+
+
 def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, radius=None, percentile_filter=(0, 100)):
     radius_str = f' radius={radius:.1f} mm' if radius is not None else ''
 
@@ -1011,7 +1032,7 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
     print(f'scan_res min: {np.nanmin(scan_resolution_vals)}, max: {np.nanmax(scan_resolution_vals)}')
     res_vmin, res_vmax = np.nanmin(scan_resolution_vals), np.nanpercentile(scan_resolution_vals, percentile_filter[1])
     print(f'res_vmax: {res_vmax}')
-    mean_vmin, mean_vmax = np.nanpercentile(scan_mean_val, percentile_filter[0]), np.nanpercentile(scan_mean_val, percentile_filter[1])
+    mean_vmin, mean_vmax = np.nanpercentile(scan_mean_val, 100 - percentile_filter[1]), np.nanpercentile(scan_mean_val, 100 - percentile_filter[0])
     print(f'mean_vmin: {mean_vmin}, mean_vmax: {mean_vmax}')
 
     # Plot results
@@ -1058,6 +1079,49 @@ def plot_2D_circle_scan(scan_resolutions, scan_means, xs, ys, scan_events=None, 
     ax.set_xlabel("X Position [mm]")
     ax.set_ylabel("Y Position [mm]")
     ax.set_title(f"SAT Contour Plot{radius_str}")
+
+    if scan_events is not None:
+        scan_events_2d = np.array(scan_events).reshape(len(ys), len(xs))
+        masked_scan_events_2d = np.ma.masked_equal(scan_events_2d, 0)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        c = ax.imshow(masked_scan_events_2d, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower",
+                      aspect="auto", cmap="jet")
+        plt.colorbar(c, label="Number of Events")
+        ax.set_xlabel("X Position [mm]")
+        ax.set_ylabel("Y Position [mm]")
+        ax.set_title(f"Event Statistics Heatmap{radius_str}")
+
+
+def plot_2D_efficiency_scan(efficiencies, xs, ys, scan_events=None, radius=None):
+    radius_str = f' radius={radius:.1f} mm' if radius is not None else ''
+
+    x_mesh, y_mesh = np.meshgrid(xs, ys)
+
+    # Convert to 2D arrays
+    efficiencies_2D = np.array(efficiencies).reshape(len(ys), len(xs))
+
+    # Plot results
+    fig, ax = plt.subplots(figsize=(8, 6))
+    c = ax.imshow(efficiencies_2D, extent=[xs.min(), xs.max(), ys.min(), ys.max()], origin="lower", aspect="auto",
+                  cmap="jet", vmax=1.0)
+    plt.colorbar(c, label="Efficiency")
+    ax.set_xlabel("X Position [mm]")
+    ax.set_ylabel("Y Position [mm]")
+    ax.set_title(f"Efficiency Heatmap{radius_str}")
+
+    # Create the contour plot
+    fig, ax = plt.subplots(figsize=(8, 6))
+    levels = np.linspace(np.nanmin(efficiencies), 1.0, 50)
+    contour = ax.contourf(x_mesh, y_mesh, efficiencies_2D, levels=levels, cmap="jet")
+
+    # Add color bar
+    cbar = plt.colorbar(contour)
+    cbar.set_label("Efficiency")
+
+    # Labels and title
+    ax.set_xlabel("X Position [mm]")
+    ax.set_ylabel("Y Position [mm]")
+    ax.set_title(f"Efficiency Contour Plot{radius_str}")
 
     if scan_events is not None:
         scan_events_2d = np.array(scan_events).reshape(len(ys), len(xs))
@@ -1149,7 +1213,7 @@ def plot_rise_fit_params(df):
     plt.show()
 
 
-def fit_time_diffs(time_diffs, n_bins=100, min_events=100, nsigma_filter=None):
+def fit_time_diffs(time_diffs, n_bins=100, min_events=100, nsigma_filter=None, return_hist=False):
     time_diffs = np.array(time_diffs)
     time_diffs = time_diffs[~np.isnan(time_diffs)]
 
@@ -1163,6 +1227,8 @@ def fit_time_diffs(time_diffs, n_bins=100, min_events=100, nsigma_filter=None):
 
     n_events = time_diffs.size
     if n_events < min_events:
+        if return_hist:
+            return meases, None, None, None
         return meases
 
     hist, bin_edges = np.histogram(time_diffs, bins=n_bins)
@@ -1172,13 +1238,28 @@ def fit_time_diffs(time_diffs, n_bins=100, min_events=100, nsigma_filter=None):
 
     try:
         p0 = [np.max(hist), np.mean(time_diffs), np.std(time_diffs)]
-        # popt, pcov = cf(gaus, bin_centers, hist, p0=p0)
         popt, pcov = cf(gaus, bin_centers, hist, p0=p0, sigma=hist_err, absolute_sigma=True)
         popt[2] = abs(popt[2])  # Ensure sigma is positive
+
+        if nsigma_filter is not None:  # Refit after filtering on nsigma
+            mask = (time_diffs > popt[1] - nsigma_filter * popt[2]) & (time_diffs < popt[1] + nsigma_filter * popt[2])
+            time_diffs = time_diffs[mask]
+            hist, bin_edges = np.histogram(time_diffs, bins=n_bins)
+            bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+            hist_err = np.where(hist > 0, np.sqrt(hist), 1)  # Assume not negative!
+            p0 = [np.max(hist), np.mean(time_diffs), np.std(time_diffs)]
+            popt, pcov = cf(gaus, bin_centers, hist, p0=p0, sigma=hist_err, absolute_sigma=True)
+
         perr = np.sqrt(np.diag(pcov))
         meases = [Measure(val, err) for val, err in zip(popt, perr)]
+
+        if return_hist:
+            return meases, hist, bin_centers, hist_err
         return meases
     except RuntimeError:
+        if return_hist:
+            return meases, hist, bin_centers, hist_err
         return meases
 
 
