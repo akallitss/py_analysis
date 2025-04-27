@@ -526,9 +526,9 @@ def get_time_walk(time_diff, charges, time_walk_func, time_walk_p0, percentile_c
                                                                                 time_walk_p0, avg_charges, med_time_diffs,
                                                                                 std_err_time_diffs, gaus_means, gaus_mean_errs)
 
-    popt_indiv = [indiv_par.val for indiv_par in pmeas_indiv]
-    popt_dyn_bin = [dyn_par.val for dyn_par in pmeas_dyn_bin]
-    popt_gaus_fits = [gaus_par.val for gaus_par in pmeas_gaus_fit]
+    popt_indiv = [indiv_par.val for indiv_par in pmeas_indiv] if pmeas_indiv is not None else None
+    popt_dyn_bin = [dyn_par.val for dyn_par in pmeas_dyn_bin] if pmeas_dyn_bin is not None else None
+    popt_gaus_fits = [gaus_par.val for gaus_par in pmeas_gaus_fit] if pmeas_gaus_fit is not None else None
 
     if plot:
         get_time_walk_correction_plot(time_diff, charges, time_walk_func, time_walk_p0, avg_charges, med_time_diffs,
@@ -651,8 +651,6 @@ def bin_data_fit(time_diff, charges, n_bins, binning_type='equal_steps', percent
 
 
 def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs):
-
-
     try:
         popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
         pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
