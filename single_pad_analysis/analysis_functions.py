@@ -869,7 +869,7 @@ def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(Non
 
     if plot:
         if xs is not None and ys is not None:
-            fig, axs = plt.subplots(ncols=2, figsize=(12, 8))
+            fig, axs = plt.subplots(ncols=2, figsize=(12, 6))
             ax, ax_xy = axs
             ax_xy.set_xlabel('X [mm]')
             ax_xy.set_ylabel('Y [mm]')
@@ -1249,6 +1249,7 @@ def fit_time_diffs(time_diffs, n_bins=100, min_events=100, nsigma_filter=None, r
             p0 = [np.max(hist), np.mean(time_diffs), np.std(time_diffs)]
             popt, pcov = cf(gaus, bin_centers, hist, p0=p0, sigma=hist_err, absolute_sigma=True)
 
+        popt[2] = abs(popt[2])  # Ensure sigma is positive
         perr = np.sqrt(np.diag(pcov))
         meases = [Measure(val, err) for val, err in zip(popt, perr)]
 
