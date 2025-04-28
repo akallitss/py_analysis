@@ -175,7 +175,7 @@ def make_chi2_cut_tracks(df, channels, chi2_quality=3, plot=False):
 
         ax.set_xlabel('chi2track')
         ax.set_ylabel('# of events')
-        ax.set_title('Chi2 Track Distribution after chi2 cut')
+        # ax.set_title('Chi2 Track Distribution after chi2 cut')
         ax.grid(True, linestyle='--', alpha=0.6)
 
     return ak_arrays
