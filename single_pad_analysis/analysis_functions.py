@@ -94,6 +94,41 @@ def find_run_pool_file(search_dir, run_num, pool_num, flag=None):
     return matches[0]
 
 
+def get_rel_time_offsets(df, root_path, run_num, pool_num, mcp_channel, mm_channel):
+    """
+    Get the relative time offsets for the given run and pool number between the mcp and mm.
+    Args:
+        df:
+        root_path:
+        run_num:
+        pool_num:
+        mcp_channel:
+        mm_channel:
+
+    Returns:
+
+    """
+    # Open the ROOT file and get the tree
+    with uproot.open(root_path) as root_file:
+        tree = root_file[f'Run{run_num}_Pool{pool_num}']
+
+        # Get the time offsets for the given channels
+        mcp_time_offset = tree[mcp_channel + '_time_offset'].array()
+        mm_time_offset = tree[mm_channel + '_time_offset'].array()
+        mcp_event_num = tree[mcp_channel + '_event_num'].array()
+        mm_event_num = tree[mm_channel + '_event_num'].array()
+        if not np.array_equal(mcp_event_num, mm_event_num):
+            raise ValueError(f"Event numbers do not match for {mcp_channel} and {mm_channel}!")
+
+    # Make dataframe with mcp event numbers and difference between mcp and mm time offsets
+    df_offsets = pd.DataFrame({'eventNo': mcp_event_num, 'rel_time_offset': mcp_time_offset - mm_time_offset})
+
+    # Merge into the original dataframe on eventNo
+    df = pd.merge(df, df_offsets, on='eventNo', how='left')
+
+    return df
+
+
 def get_single_peak(df, channel):
     "Extract a single peak for each channel"
     peak_no = 0
@@ -865,7 +900,7 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
     return resolutions, means, events
 
 
-def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), xs=None, ys=None, plot=False):
+def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), nsigma_filter=None, xs=None, ys=None, plot=False):
 
     if plot:
         if xs is not None and ys is not None:
@@ -897,26 +932,18 @@ def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(Non
 
         time_diffs_r_bin = make_percentile_cuts(time_diffs_r_bin, percentile_cuts)
 
-        time_hist, bin_edges = np.histogram(time_diffs_r_bin, bins=time_diff_binning)
-        time_diff_bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-        fit_meases = fit_time_diffs(time_diffs_r_bin, n_bins=time_diff_binning, min_events=100)
+        fit_meases, time_hist, time_diff_bin_centers, time_hist_err = fit_time_diffs(time_diffs_r_bin, n_bins=time_diff_binning, nsigma_filter=nsigma_filter, min_events=100, return_hist=True)
         mean_sats.append(fit_meases[1]*1e3)
         time_resolutions.append(fit_meases[2] * 1e3)
         r_bin_centers.append((r_bin_edge + r_bin_upper_edge) / 2)
 
         if plot:
             fig_ring, ax_ring = plt.subplots(figsize=(8, 5))
-            # ax_ring.bar(time_diff_bin_centers, time_hist, width=bin_edges[1] - bin_edges[0], align='center',
-            #        label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
-
-            # Poisson error (sqrt of counts)
-            yerr = np.where(time_hist > 0, np.sqrt(time_hist), 1)
 
             # Only plot bins with non-zero entries
             mask_nonzero = time_hist > 0
             ax_ring.errorbar(time_diff_bin_centers[mask_nonzero], time_hist[mask_nonzero],
-                             yerr=yerr[mask_nonzero], fmt='o', color='black',
+                             yerr=time_hist_err[mask_nonzero], fmt='o', color='black',
                              label=f'{r_bin_edge:.2f} - {r_bin_upper_edge:.2f} mm')
 
             fit_str = rf'$A = {fit_meases[0]}$' + '\n' + rf'$\mu = {fit_meases[1]}$' + '\n' + rf'$\sigma = {fit_meases[2]}$'
