@@ -812,6 +812,54 @@ def get_time_walk_r_separated(time_diff, charges, rs, percentile_cut=(None, None
     if ylim is not None:
         ax.set_ylim(ylim[0], ylim[1])
 
+def get_time_walk_r_separated_in_pad(time_diff, charges, rs, percentile_cut=(None, None), binning_type='equal_stats', n_bins=100, ylim=None):
+    """
+    Get time walk for a give channel with colors for r regions
+    Parameters:
+        time_diff (list): The time differences between micromegas and mcp
+        charges (list): List of micromegas charges
+        rs (list): List of micromegas rs
+        percentile_cut (tuple): Percentile cut for the time difference
+        binning_type (str): Type of binning for the time walk correction
+        n_bins (int): Number of bins
+        ylim (tuple): Y-axis limits
+    """
+
+    charges, time_diff, rs = filter_sort_charges_time_diffs_rs(time_diff, charges, rs)
+
+    region_masks = {
+        '0-2.5 mm': (rs <= 2.5),
+        '2.5-5 mm': (rs> 2.5) & (rs <= 5),
+        '5-7.5 mm': (rs > 5) & (rs <=7.5)
+    }
+
+    # Colors for the plot
+    region_colors = {
+        '0-2.5 mm': 'blue',
+        '2.5-5 mm': 'green',
+        '5-7.5 mm': 'red'
+    }
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for region_label, mask in region_masks.items():
+        region_time_diff = time_diff[mask]
+        region_charges = charges[mask]
+
+        # Skip if region has no valid data
+        if len(region_charges) == 0 or len(region_time_diff) == 0:
+            print(f"Skipping region '{region_label}': no data after mask")
+            continue
+
+        avg_charges, _, _, gaus_means, gaus_stds = get_time_walk_binned(region_time_diff, region_charges, binning_type, n_bins,
+            percentile_cut)
+        ax.errorbar(avg_charges, gaus_means, yerr=gaus_stds, fmt='.', color=region_colors[region_label], label=region_label)
+
+    ax.legend()
+    ax.set_xlabel('Total Charge [pC]')
+    ax.set_ylabel('SAT [ns]')
+    if ylim is not None:
+        ax.set_ylim(ylim[0], ylim[1])
+
 
 def make_percentile_cuts(data, percentile_cuts=(None,None), return_what='data'):
     if len(data) == 0:
