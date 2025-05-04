@@ -23,7 +23,8 @@ def main():
 
 
 def run_from_files_directory():
-    run_periods = ['2024_June_h4', '2023_April_h4', '2023_July_h4', '2023_August_h4', '2024_September_h4']
+    # run_periods = ['2024_June_h4', '2023_April_h4', '2023_July_h4', '2023_August_h4', '2024_September_h4']
+    run_periods = ['2023_April_h4', '2023_July_h4', '2023_August_h4', '2024_September_h4']
     for run_period in run_periods:
         run_pools_input_dir = f'/eos/project-p/picosec/analysis/Saclay/data/{run_period}/processedTrees'
         out_root_path = f'/eos/project-p/picosec/analysis/Saclay/data/{run_period}/oscilloscope_time_offsets_{run_period}.root'
@@ -32,7 +33,13 @@ def run_from_files_directory():
 
         file_list = os.listdir(run_pools_input_dir)
         file_list = [f for f in file_list if f.endswith('.root')]
-        run_pool_list = [get_run_pool_from_filename(f) for f in file_list]
+        run_pool_list = []
+        for file_name in file_list:
+            run, pool = get_run_pool_from_filename(file_name)
+            if run is None or pool is None:
+                print_log(f"Skipping input file {file_name} due to parsing error.", log_path)
+                continue
+            run_pool_list.append((run, pool))
 
         trees = {}
         for run, pool in run_pool_list:
@@ -158,18 +165,22 @@ def get_run_pool_from_filename(filename):
     Returns:
 
     """
-    # Remove any directory path and extension
-    base_name = filename.split('/')[-1].replace('.root', '')
+    try:
+        # Remove any directory path and extension
+        base_name = filename.split('/')[-1].replace('.root', '')
 
-    # Isolate the part like 'Run303-Pool3'
-    main_part = base_name.split('_')[0]
+        # Isolate the part like 'Run303-Pool3'
+        main_part = base_name.split('_')[0]
 
-    # Split into 'Run303' and 'Pool3'
-    run_str, pool_str = main_part.split('-')
+        # Split into 'Run303' and 'Pool3'
+        run_str, pool_str = main_part.split('-')
 
-    # Extract the numeric parts
-    run_number = int(run_str.replace('Run', ''))
-    pool_number = int(pool_str.replace('Pool', ''))
+        # Extract the numeric parts
+        run_number = int(run_str.replace('Run', ''))
+        pool_number = int(pool_str.replace('Pool', ''))
+    except (IndexError, ValueError) as e:
+        print(f"Error parsing filename '{filename}': {e}")
+        return None, None
 
     return run_number, pool_number
 
