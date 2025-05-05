@@ -534,7 +534,8 @@ def gaus(x, a, mu, sigma):
 def line(x, a, b):
     return a*x + b
 
-def get_time_walk(time_diff, charges, time_walk_func, time_walk_p0, percentile_cut=(None, None), binning_type='equal_stats', n_bins =100, plot=False, plot_indiv_fits=False):
+def get_time_walk(time_diff, charges, time_walk_func, time_walk_p0, percentile_cut=(None, None), binning_type='equal_stats', n_bins=100, plot=False, plot_indiv_fits=False,
+                  exclude_first_point=False):
     """
     Get time walk correction for a given channel
     Parameters:
@@ -547,6 +548,7 @@ def get_time_walk(time_diff, charges, time_walk_func, time_walk_p0, percentile_c
         percentile_cut (tuple): Percentile cut for the time difference
         plot (bool): Plot the time walk correction
         plot_indiv_fits (bool): Plot individual fits if True
+        exclude_first_point: (bool): Exclude the first point if True
     Returns:
         tuple(Measure, Measure): Tuple of Measure objects representing the x and y pad center estimates
     """
@@ -556,6 +558,13 @@ def get_time_walk(time_diff, charges, time_walk_func, time_walk_p0, percentile_c
                                                                                                        binning_type, n_bins,
                                                                                                        percentile_cut,
                                                                                                        plot_indiv_fits)
+
+    if exclude_first_point:
+        avg_charges = avg_charges[1:]
+        med_time_diffs = med_time_diffs[1:]
+        std_err_time_diffs = std_err_time_diffs[1:]
+        gaus_means = gaus_means[1:]
+        gaus_mean_errs = gaus_mean_errs[1:]
 
     pmeas_indiv, pmeas_dyn_bin, pmeas_gaus_fit = get_time_walk_parameterization(time_diff, charges, time_walk_func,
                                                                                 time_walk_p0, avg_charges, med_time_diffs,
