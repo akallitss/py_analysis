@@ -905,7 +905,7 @@ def relative_distances(xy_pairs, x_center, y_center):
             for x, y in xy_pairs]
 
 
-def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, nbins=100, percentile_cuts=(None, None), nsigma_filter=None, plot=False):
+def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time_diff_lims=None, min_events=100, nbins=100, percentile_cuts=(None, None), nsigma_filter=None, shape='circle', plot=False):
 
     if ns_to_ps:
         time_diffs = time_diffs * 1000
@@ -917,8 +917,14 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
     resolutions, means, events = [], [], []
     for x, y in xy_pairs:
         # print(f'Circle Scan: ({x}, {y})')
-        rs = np.sqrt((xs - x) ** 2 + (ys - y) ** 2)
-        mask = rs < radius
+        if shape == 'circle':
+            rs = np.sqrt((xs - x) ** 2 + (ys - y) ** 2)
+            mask = rs < radius
+        elif shape == 'square':
+            mask = (xs > x - radius) & (xs < x + radius) & (ys > y - radius) & (ys < y + radius)
+        else:
+            print(f"Invalid shape: {shape}")
+            return
         time_diffs_bin = time_diffs[mask]
         time_diffs_bin = np.array(time_diffs_bin[~np.isnan(time_diffs_bin)])
 
@@ -957,8 +963,11 @@ def get_circle_scan(time_diffs, xs, ys, xy_pairs, ns_to_ps=False, radius=1, time
     return resolutions, means, events
 
 
-def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), nsigma_filter=None, xs=None, ys=None, plot=False):
+def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(None, None), nsigma_filter=None, xs=None, ys=None, shape='circle', plot=False):
 
+    if shape == 'square' and (xs is None or ys is None) or shape not in ['circle', 'square']:
+        print(f"Shape is square, but xs and ys are not provided or unknown shape {shape}. Cannot plot.")
+        return
     if plot:
         if xs is not None and ys is not None:
             fig, axs = plt.subplots(ncols=2, figsize=(12, 6))
@@ -984,7 +993,10 @@ def get_ring_scan(time_diff_cor, rings, ring_bin_width, rs, percentile_cuts=(Non
     r_bin_centers, time_resolutions, mean_sats = [], [], []
     for r_bin_edge in rings:
         r_bin_upper_edge = r_bin_edge + ring_bin_width
-        r_bin_filter = (rs > r_bin_edge) & (rs <= r_bin_upper_edge)
+        if shape == 'circle':
+            r_bin_filter = (rs > r_bin_edge) & (rs <= r_bin_upper_edge)
+        elif shape == 'square':  # Check if xs and ys are in the square region
+            r_bin_filter = (xs > r_bin_edge) & (xs <= r_bin_upper_edge) & (ys > r_bin_edge) & (ys <= r_bin_upper_edge)
         time_diffs_r_bin = time_diff_cor[r_bin_filter]
 
         time_diffs_r_bin = make_percentile_cuts(time_diffs_r_bin, percentile_cuts)
