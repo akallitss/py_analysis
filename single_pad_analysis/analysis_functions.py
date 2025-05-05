@@ -396,7 +396,7 @@ def get_pad_center(charges, xs, ys, bin_width=0.5, min_tracks_per_2d_bin=20, min
         avg_y_charge_err = np.where(sum_y_tracks > 0, np.abs(avg_y_charge) / np.sqrt(sum_y_tracks), 1)
 
         x_fit_mask = (bin_centers_x > x_min) & (bin_centers_x < x_max)
-        avg_x_charge_x0_guess = np.nanmedian(xs)
+        avg_x_charge_x0_guess = np.nanmedian(xs[(xs > x_min) & (xs < x_max)])
         avg_x_charge_max = np.max(avg_x_charge[x_fit_mask])
         avg_x_charge_curvature_guess = avg_x_charge_max / (x_range / 2) ** 2
         p0_x = [avg_x_charge_x0_guess, avg_x_charge_max, -avg_x_charge_curvature_guess, 0]
@@ -406,7 +406,7 @@ def get_pad_center(charges, xs, ys, bin_width=0.5, min_tracks_per_2d_bin=20, min
         meas_x_charge = [Measure(val, err) for val, err in zip(popt_x_charge, perr_x_charge)]
 
         y_fit_mask = (bin_centers_y > y_min) & (bin_centers_y < y_max)
-        avg_y_charge_y0_guess = np.nanmedian(ys)
+        avg_y_charge_y0_guess = np.nanmedian(ys[(ys > y_min) & (ys < y_max)])
         avg_y_charge_max = np.max(avg_y_charge[y_fit_mask])
         avg_y_charge_curvature_guess = avg_y_charge_max / (y_range / 2) ** 2
         p0_y = [avg_y_charge_y0_guess, avg_y_charge_max, -avg_y_charge_curvature_guess, 0]
@@ -654,7 +654,7 @@ def bin_data_fit(time_diff, charges, n_bins, binning_type='equal_steps', percent
             if len(std_err_time_diffs) > 0:
                 std = std_err_time_diffs[-1]
             else:
-                std = med
+                std = np.abs(med)
             med_time_diffs.append(med)
             std_err_time_diffs.append(std)
             gaus_means.append(med)
