@@ -696,7 +696,7 @@ def bin_data_fit(time_diff, charges, n_bins, binning_type='equal_steps', percent
 
 def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk_p0, avg_charges, med_time_diffs, std_err_time_diffs, gaus_means, gaus_mean_errs):
     try:
-        popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=10000)
+        popt_indiv, pcov_indiv = cf(time_walk_func, charges, time_diff, p0=time_walk_p0, maxfev=50000)
         pmeas_indiv = [Measure(val, err) for val, err in zip(popt_indiv, np.sqrt(np.diag(pcov_indiv)))]
     except RuntimeError as e:
         print(f"Error fitting individual points: {e}")
@@ -704,7 +704,7 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
 
     try:
         popt_dyn_bin, pcov_dyn_bin = cf(time_walk_func, avg_charges, med_time_diffs, sigma=std_err_time_diffs,
-                                    absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
+                                    absolute_sigma=True, p0=time_walk_p0, maxfev=50000)
         pmeas_dyn_bin = [Measure(val, err) for val, err in zip(popt_dyn_bin, np.sqrt(np.diag(pcov_dyn_bin)))]
     except RuntimeError as e:
         print(f"Error fitting dynamic bin: {e}")
@@ -712,7 +712,7 @@ def get_time_walk_parameterization(time_diff, charges, time_walk_func, time_walk
 
     try:
         popt_gaus_fits, pcov_gaus_fits = cf(time_walk_func, avg_charges, gaus_means, sigma=gaus_mean_errs,
-                                        absolute_sigma=True, p0=time_walk_p0, maxfev=10000)
+                                        absolute_sigma=True, p0=time_walk_p0, maxfev=50000)
         pmeas_gaus_fit = [Measure(val, err) for val, err in zip(popt_gaus_fits, np.sqrt(np.diag(pcov_gaus_fits)))]
         print(f'gaus fit measures = {pmeas_gaus_fit}')
     except RuntimeError as e:
