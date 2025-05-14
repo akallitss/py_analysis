@@ -1,0 +1,3 @@
+source pyanalysis/bin/activate
+source /path/to/root/bin/thisroot.sh
+jupyter notebook

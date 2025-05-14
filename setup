@@ -1,3 +1,0 @@
-source pyanalysis/bin/activate
-source /home/evridiki/Programs/root/bin/thisroot.sh
-jupyter notebook
