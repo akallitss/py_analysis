@@ -16,8 +16,8 @@ from datetime import datetime
 
 
 def main():
-    # local_test()
-    run_from_files_directory()
+    local_test()
+    # run_from_files_directory()
 
     print('donzo')
 
@@ -74,10 +74,24 @@ def run_from_files_directory():
 
 
 def local_test():
-    run_num = 358
-    pool_num = 8
-    trc_dir = f'/media/ucla/picosec/Run{run_num}/'
-    out_root_path = f'/media/ucla/picosec/Run{run_num}/oscilloscope_time_offsets.root'
+    # run_num = 358
+    # pool_num = 8
+    # trc_dir = f'/media/ucla/picosec/Run{run_num}/'
+    # out_root_path = f'/media/ucla/picosec/Run{run_num}/oscilloscope_time_offsets.root'
+    # tree_name = f"Run{run_num}_Pool{pool_num}"
+    #
+    # data_per_channel = get_directory_offset_corrections(trc_dir)
+    #
+    # # Write to ROOT file
+    # with uproot.recreate(out_root_path) as root_file:
+    #     root_file[tree_name] = data_per_channel
+    #
+    # print(f"Wrote TTree '{tree_name}' to {out_root_path}")
+
+    run_num = 296
+    pool_num = 2
+    trc_dir = f'/data/akallits/Saclay_Analysis/data/data/2023_August_h4/Run{run_num}/'
+    out_root_path = f'/data/akallits/Saclay_Analysis/data/data/2023_August_h4/Run{run_num}/oscilloscope_time_offsets.root'
     tree_name = f"Run{run_num}_Pool{pool_num}"
 
     data_per_channel = get_directory_offset_corrections(trc_dir)
@@ -110,10 +124,14 @@ def get_directory_offset_corrections(trc_dir, log_path=None):
         event_num = 0
 
         for trc_file in files:
-            # print(f'Channel {channel}, File: {trc_file}')
-            data = lecroyparser.ScopeData(f'{trc_dir}{trc_file}')
-            n_waveforms = get_lecroy_nsegments(data)
-            trigger_time, trigger_offset = get_trigger_offset(data)
+            print(f'Channel {channel}, File: {trc_file}')
+            try:
+                data = lecroyparser.ScopeData(f'{trc_dir}{trc_file}')
+                n_waveforms = get_lecroy_nsegments(data)
+                trigger_time, trigger_offset = get_trigger_offset(data)
+            except Exception as e:
+                print_log(f"Skipping file{trc_file} due to error {e}", log_path)
+                continue
 
             for i in range(n_waveforms):
                 event_nums.append(event_num)
@@ -124,11 +142,11 @@ def get_directory_offset_corrections(trc_dir, log_path=None):
         data_per_channel[f"{channel}_time_offset"] = np.array(time_offsets, dtype=np.float32)
 
     # Ensure all branches are same length
-    branch_lengths = {len(arr) for arr in data_per_channel.values()}
-    if len(branch_lengths) > 1:
-        message = f"Branches are different lengths: {branch_lengths}"
-        print_log(message, log_path)
-        raise ValueError(message)
+    # branch_lengths = {len(arr) for arr in data_per_channel.values()}
+    # if len(branch_lengths) > 1:
+    #     message = f"Branches are different lengths: {branch_lengths}"
+    #     print_log(message, log_path)
+    #     raise ValueError(message)
 
     return data_per_channel
 
