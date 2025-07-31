@@ -23,8 +23,8 @@ def main():
 
 
 def run_from_files_directory():
-    # run_periods = ['2024_June_h4', '2023_April_h4', '2023_July_h4', '2023_August_h4', '2024_September_h4']
-    run_periods = ['2023_April_h4', '2023_July_h4', '2023_August_h4', '2024_September_h4']
+    run_periods = ['2023_August_h4']
+   #run_periods = ['2023_April_h4', '2023_July_h4', '2023_August_h4', '2024_September_h4']
     for run_period in run_periods:
         run_pools_input_dir = f'/eos/project-p/picosec/analysis/Saclay/data/{run_period}/processedTrees'
         out_root_path = f'/eos/project-p/picosec/analysis/Saclay/data/{run_period}/oscilloscope_time_offsets_{run_period}.root'
